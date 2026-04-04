@@ -1,0 +1,15 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    api project(':dev-console-spring-boot-autoconfigure')
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
