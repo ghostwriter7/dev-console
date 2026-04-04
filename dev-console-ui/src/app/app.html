@@ -1,0 +1,23 @@
+<main>
+  @for (message of messages(); track message) {
+    @switch (message.type) {
+      @case ('input') {
+        <app-message-renderer [payload]="message.payload" (payloadChange)="onPayloadChange($event)"/>
+      }
+      @case ('output') {
+        <app-message-renderer
+          language="json"
+          [payload]="message.payload"
+          [readOnly]="true"
+          />
+      }
+      @case ('error') {
+        <app-error-output [payload]="message.payload"/>
+      }
+    }
+
+    @if (!$last) {
+      <hr/>
+    }
+  }
+</main>
