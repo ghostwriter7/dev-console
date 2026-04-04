@@ -1,12 +1,21 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 
 dependencies {
     api project(':dev-console-spring-boot-autoconfigure')
 }
 
-
 jar {
     enabled = true
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'dev-console-spring-boot-starter'
+        }
+    }
 }

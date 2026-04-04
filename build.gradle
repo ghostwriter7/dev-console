@@ -4,11 +4,12 @@ plugins {
 }
 
 allprojects {
-    group = 'org.rozplochowski'
+    group = 'com.rozplochowski'
     version = '1.0-SNAPSHOT'
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 }
 

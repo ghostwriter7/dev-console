@@ -1,13 +1,16 @@
 plugins {
     id 'org.springframework.boot'
     id 'java-library'
+    id 'maven-publish'
 }
 
 dependencies {
+    api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
+
     api 'org.springframework.boot:spring-boot-autoconfigure'
     api 'org.springframework.boot:spring-boot-starter-websocket'
 
-    implementation 'org.apache.groovy:groovy:5.0.5'
+    implementation 'org.apache.groovy:groovy-all:5.0.5'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     compileOnly 'org.projectlombok:lombok:1.18.34'
@@ -25,4 +28,13 @@ bootJar {
 
 jar {
     enabled = true
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'dev-console-spring-boot-autoconfigure'
+        }
+    }
 }

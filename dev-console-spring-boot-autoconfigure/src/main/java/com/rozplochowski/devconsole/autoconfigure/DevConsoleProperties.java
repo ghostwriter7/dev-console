@@ -11,6 +11,6 @@ import java.util.List;
 @ConfigurationProperties(prefix = "dev.console")
 public class DevConsoleProperties {
     private boolean enabled = false;
-    private List<String> allowedOrigins = List.of("*");
+    private List<String> allowedOrigins = List.of("*", "http://localhost:4200");
     private String path = "/v1/dev/console/ws";
 }

@@ -6,6 +6,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.springframework.context.ApplicationContext;
@@ -17,6 +18,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
@@ -33,6 +35,8 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
+        log.info("New DevConsole WebSocket connection established.");
+
         Map<String, Object> vars = new HashMap<>();
         vars.put(CTX, context);
         vars.put(ENV, environment);
@@ -62,6 +66,8 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void handleMessage(@NonNull WebSocketSession session, @NonNull WebSocketMessage<?> message) throws Exception {
+        log.info("Received message: {}", message.getPayload());
+
         if (message.getPayload() instanceof String script) {
             var attributes = session.getAttributes();
             Binding binding = (Binding) attributes.get(BINDING);
@@ -77,6 +83,9 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
                 response.put("status", "success");
                 response.put("result", result == null ? null : objectMapper.writeValueAsString(result));
                 response.put("output", output.toString());
+
+                log.info("Responding with a success: {}", response);
+
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
             } catch (Exception e) {
                 Map<String, Object> response = new HashMap<>();
@@ -87,6 +96,7 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
                 response.put("stackTrace", stringWriter.toString());
                 response.put("status", "error");
 
+                log.info("Responding with an error: {}", response);
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
             }
         }
@@ -99,6 +109,7 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus closeStatus) {
+        log.info("DevConsole WebSocket connection closed.");
         var attributes = session.getAttributes();
         attributes.remove(BINDING);
         attributes.remove(SHELL);

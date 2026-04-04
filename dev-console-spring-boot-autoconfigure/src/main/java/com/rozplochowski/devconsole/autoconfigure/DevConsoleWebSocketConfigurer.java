@@ -2,9 +2,15 @@ package com.rozplochowski.devconsole.autoconfigure;
 
 import com.rozplochowski.devconsole.websocket.DevConsoleWebSocketHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+@Slf4j
+@Configuration
+@EnableWebSocket
 @RequiredArgsConstructor
 public class DevConsoleWebSocketConfigurer implements WebSocketConfigurer {
 
@@ -13,6 +19,8 @@ public class DevConsoleWebSocketConfigurer implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        log.info("Registering DevConsole WebSocket handler with path: {} and allowed origins: {}", properties.getPath(), properties.getAllowedOrigins());
+
         registry.addHandler(devConsoleWebSocketHandler, properties.getPath())
                 .setAllowedOrigins(properties.getAllowedOrigins().toArray(new String[0]));
     }
