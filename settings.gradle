@@ -2,3 +2,4 @@ rootProject.name = 'DevConsole'
 
 include 'dev-console-spring-boot-autoconfigure'
 include 'dev-console-spring-boot-starter'
+include 'dev-console-controller'
