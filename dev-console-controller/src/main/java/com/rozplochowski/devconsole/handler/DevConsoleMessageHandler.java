@@ -18,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DevConsoleMessageHandler implements WebSocketHandler {
     private final Map<String, WebSocketSession> sessionByServerName = new HashMap<>();
+    private WebSocketSession client;
     private final ObjectMapper mapper;
 
     @Override
@@ -34,6 +35,19 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
 
         if (msg instanceof DevConsoleMessage.ServerConnectCommand(String serviceName)) {
             handleServiceRegistration(serviceName, session);
+        } else if (msg instanceof DevConsoleMessage.ClientConnectCommand) {
+            log.info("Received ClientConnectCommand from {}. UI connected.", session.getId());
+            client = session;
+        } else if (msg instanceof DevConsoleMessage.ExecuteScriptCommand executeScriptCommand) {
+            var targetSession = sessionByServerName.get(executeScriptCommand.targetServiceName());
+            if (targetSession != null) {
+                targetSession.sendMessage(message);
+            } else {
+                log.error("No session found for target service: {}", executeScriptCommand.targetServiceName());
+            }
+        } else if (msg instanceof DevConsoleMessage.ScriptExecutedEvent scriptExecutedEvent) {
+            log.info("Received ScriptExecutedEvent from Session: {} for UUID: {}. Replaying back to UI.", session.getId(), scriptExecutedEvent.uuid());
+            client.sendMessage(message);
         }
 
     }
