@@ -1,5 +1,7 @@
 package com.rozplochowski.devconsole.autoconfigure;
 
+import com.rozplochowski.devconsole.config.ThreadSchedulerConfig;
+import com.rozplochowski.devconsole.config.WebSocketConfig;
 import com.rozplochowski.devconsole.websocket.DevConsoleConnector;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -14,7 +16,7 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableConfigurationProperties(DevConsoleProperties.class)
 @ConditionalOnProperty(prefix = "dev.console", name = "enabled", havingValue = "true")
-@Import(DevConsoleWebSocketConfigurer.class)
+@Import({WebSocketConfig.class, ThreadSchedulerConfig.class})
 @ComponentScan(basePackageClasses = DevConsoleConnector.class)
 public class DevConsoleAutoConfiguration {
 }

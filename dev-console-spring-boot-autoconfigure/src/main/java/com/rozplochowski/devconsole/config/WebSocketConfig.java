@@ -1,5 +1,6 @@
-package com.rozplochowski.devconsole.autoconfigure;
+package com.rozplochowski.devconsole.config;
 
+import com.rozplochowski.devconsole.autoconfigure.DevConsoleProperties;
 import com.rozplochowski.devconsole.websocket.DevConsoleWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
-public class DevConsoleWebSocketConfigurer implements WebSocketConfigurer {
+public class WebSocketConfig implements WebSocketConfigurer {
 
     private final DevConsoleWebSocketHandler devConsoleWebSocketHandler;
     private final DevConsoleProperties properties;

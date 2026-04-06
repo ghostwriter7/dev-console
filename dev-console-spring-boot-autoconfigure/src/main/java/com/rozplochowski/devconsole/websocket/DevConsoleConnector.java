@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
@@ -11,6 +12,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.*;
 
 @Slf4j
@@ -20,18 +22,19 @@ public class DevConsoleConnector {
 
     private final DevConsoleWebSocketHandler handler;
     private final StandardWebSocketClient client = new StandardWebSocketClient();
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private final ThreadPoolTaskScheduler executor;
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         log.info("DevConsole WebSocket connector initialized");
 
-        try {
-            var session = connectWithRetry().get();
-            log.info("Successfully connected to DevConsole WebSocket, session ID: {}", session.getId());
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to connect to DevConsole WebSocket", e);
-        }
+        connectWithRetry().whenComplete((session, throwable) -> {
+            if (throwable != null) {
+                log.error("Failed to connect to DevConsole WebSocket", throwable);
+            } else {
+                log.info("Successfully connected to DevConsole WebSocket, session ID: {}", session.getId());
+            }
+        });
     }
 
     private CompletableFuture<WebSocketSession> connectWithRetry() {
@@ -55,7 +58,7 @@ public class DevConsoleConnector {
                             .whenComplete((s, t) -> {
                                 if (t != null) delayedAttempt.completeExceptionally(t);
                                 else delayedAttempt.complete(s);
-                            } ), delayInMs, TimeUnit.MILLISECONDS);
+                            }), Instant.now().plusMillis(delayInMs));
                     return delayedAttempt;
                 });
     }
