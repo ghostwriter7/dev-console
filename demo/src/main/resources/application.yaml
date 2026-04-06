@@ -1,0 +1,9 @@
+
+spring:
+  application:
+    name: demo
+dev:
+  console:
+    enabled: true
+server:
+  port: 9000
