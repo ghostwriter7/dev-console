@@ -19,14 +19,13 @@ import java.util.concurrent.ExecutionException;
 public class DevConsoleConnector {
 
     private final DevConsoleWebSocketHandler handler;
-    private WebSocketSession session;
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() throws IOException, ExecutionException, InterruptedException {
         log.info("DevConsole WebSocket connector initialized");
 
         var client = new StandardWebSocketClient();
-        session = client.execute(
+        var session = client.execute(
                 handler,
                 new WebSocketHttpHeaders(),
                 URI.create("ws://localhost:8080/v1/dev/console/ws")

@@ -1,8 +1,8 @@
 package com.rozplochowski.devconsole.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.DevConsoleMessage;
-import com.rozplochowski.devconsole.autoconfigure.DevConsoleProperties;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import lombok.NonNull;
@@ -16,6 +16,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -28,7 +29,6 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
     private final ApplicationContext context;
     private final Environment environment;
-    private final DevConsoleProperties properties;
     private final ObjectMapper mapper;
 
     @Value("${spring.application.name:UnknownAppName}")
@@ -72,43 +72,59 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
         var payload = new DevConsoleMessage.ServerConnectCommand(appName);
         var message = mapper.writeValueAsString(payload);
 
-        session.sendMessage(new TextMessage(message));    }
+        session.sendMessage(new TextMessage(message));
+    }
 
     @Override
     public void handleMessage(@NonNull WebSocketSession session, @NonNull WebSocketMessage<?> message) throws Exception {
-        log.info("Received message: {}", message.getPayload());
+        var payload = message.getPayload();
+        log.info("Received message: {}", payload);
 
-        if (message.getPayload() instanceof String script) {
-            var attributes = session.getAttributes();
-            Binding binding = (Binding) attributes.get(BINDING);
-            GroovyShell shell = (GroovyShell) attributes.get(SHELL);
+        var actualMessage = mapper.readValue(payload.toString(), DevConsoleMessage.class);
 
-            var output = new StringWriter();
-            var writer = new PrintWriter(output);
-            binding.setProperty("out", writer);
+        if (actualMessage instanceof DevConsoleMessage.ServerConnectedEvent) {
+            log.info("Received acknowledgement from the server. Connection established.");
+        } else if (actualMessage instanceof DevConsoleMessage.ExecuteScriptCommand executeScriptCommand) {
+            handleExecuteScriptCommand(session, executeScriptCommand);
+        }
+    }
 
-            try {
-                var result = shell.evaluate(script);
-                Map<String, Object> response = new HashMap<>();
-                response.put("status", "success");
-                response.put("result", result == null ? null : mapper.writeValueAsString(result));
-                response.put("output", output.toString());
+    private void handleExecuteScriptCommand(@NonNull WebSocketSession session, DevConsoleMessage.ExecuteScriptCommand executeScriptCommand) {
+        var attributes = session.getAttributes();
+        Binding binding = (Binding) attributes.get(BINDING);
+        GroovyShell shell = (GroovyShell) attributes.get(SHELL);
 
-                log.info("Responding with a success: {}", response);
+        var output = new StringWriter();
+        var writer = new PrintWriter(output);
+        binding.setProperty("out", writer);
 
-                session.sendMessage(new TextMessage(mapper.writeValueAsString(response)));
-            } catch (Exception e) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("error", e.getMessage());
+        log.info("Executing Script for Command UUID: {}: {} ", executeScriptCommand.uuid(), executeScriptCommand.script());
 
-                var stringWriter = new StringWriter();
-                e.printStackTrace(new PrintWriter(stringWriter));
-                response.put("stackTrace", stringWriter.toString());
-                response.put("status", "error");
+        try {
+            var result = shell.evaluate(executeScriptCommand.script());
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("result", result == null ? null : mapper.writeValueAsString(result));
+            response.put("output", output.toString());
 
-                log.info("Responding with an error: {}", response);
-                session.sendMessage(new TextMessage(mapper.writeValueAsString(response)));
-            }
+            var message = new DevConsoleMessage.ScriptExecutedEvent(executeScriptCommand.uuid(), response);
+
+            log.info("Responding with a success: {}", message);
+
+            send(session, message);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+
+            var stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            response.put("stackTrace", stringWriter.toString());
+            response.put("status", "error");
+
+            var message = new DevConsoleMessage.ScriptExecutedEvent(executeScriptCommand.uuid(), response);
+
+            log.info("Responding with an error: {}", message);
+            send(session, message);
         }
     }
 
@@ -128,5 +144,22 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
     @Override
     public boolean supportsPartialMessages() {
         return false;
+    }
+
+    private String serialize(DevConsoleMessage message) {
+        try {
+            return mapper.writeValueAsString(message);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException("Could not serialize JSON: " + ex.getMessage());
+        }
+    }
+
+    private void send(WebSocketSession session, DevConsoleMessage message) {
+        try {
+            var textMessage = new TextMessage(serialize(message));
+            session.sendMessage(textMessage);
+        } catch (IOException ex) {
+            log.error("Failed to send message to WebSocket session: {}", session.getId(), ex);
+        }
     }
 }
