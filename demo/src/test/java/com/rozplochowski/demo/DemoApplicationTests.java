@@ -1,10 +1,10 @@
-package org.rozplochowski.devconsolecontroller;
+package com.rozplochowski.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DevConsoleControllerApplicationTests {
+class DemoApplicationTests {
 
     @Test
     void contextLoads() {

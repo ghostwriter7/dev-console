@@ -11,7 +11,8 @@ import java.util.UUID;
 @JsonSubTypes(value = {
         @JsonSubTypes.Type(value = DevConsoleMessage.ServerConnectCommand.class, name = "serverConnectCommand"),
         @JsonSubTypes.Type(value = DevConsoleMessage.ExecuteScriptCommand.class, name = "executeScriptCommand"),
-        @JsonSubTypes.Type(value = DevConsoleMessage.ScriptExecutedEvent.class, name = "scriptExecutedEvent")
+        @JsonSubTypes.Type(value = DevConsoleMessage.ScriptExecutedEvent.class, name = "scriptExecutedEvent"),
+        @JsonSubTypes.Type(value = DevConsoleMessage.ServerConnectedEvent.class, name = "serverConnectedEvent")
 })
 public sealed interface DevConsoleMessage {
     record ServerConnectCommand(String serviceName) implements DevConsoleMessage {
@@ -21,5 +22,7 @@ public sealed interface DevConsoleMessage {
     }
 
     record ScriptExecutedEvent(UUID uuid, Map<String, Object> result) implements DevConsoleMessage {
+    }
+    record ServerConnectedEvent(String serviceName) implements DevConsoleMessage {
     }
 }

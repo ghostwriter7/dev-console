@@ -1,6 +1,7 @@
 package com.rozplochowski.devconsole.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rozplochowski.devconsole.DevConsoleMessage;
 import com.rozplochowski.devconsole.autoconfigure.DevConsoleProperties;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -9,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
 import java.io.PrintWriter;
@@ -20,12 +23,16 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
     private final ApplicationContext context;
     private final Environment environment;
     private final DevConsoleProperties properties;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper mapper;
+
+    @Value("${spring.application.name:UnknownAppName}")
+    private final String appName;
 
     private static final String CTX = "ctx";
     private static final String ENV = "env";
@@ -61,8 +68,11 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
         var shell = new GroovyShell(getClass().getClassLoader(), binding, compilerConfig);
         session.getAttributes().put(SHELL, shell);
 
-        session.sendMessage(new TextMessage("Connection Established."));
-    }
+        log.info("Sending initial WebSocket message for app: {}", appName);
+        var payload = new DevConsoleMessage.ServerConnectCommand(appName);
+        var message = mapper.writeValueAsString(payload);
+
+        session.sendMessage(new TextMessage(message));    }
 
     @Override
     public void handleMessage(@NonNull WebSocketSession session, @NonNull WebSocketMessage<?> message) throws Exception {
@@ -81,12 +91,12 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
                 var result = shell.evaluate(script);
                 Map<String, Object> response = new HashMap<>();
                 response.put("status", "success");
-                response.put("result", result == null ? null : objectMapper.writeValueAsString(result));
+                response.put("result", result == null ? null : mapper.writeValueAsString(result));
                 response.put("output", output.toString());
 
                 log.info("Responding with a success: {}", response);
 
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
+                session.sendMessage(new TextMessage(mapper.writeValueAsString(response)));
             } catch (Exception e) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("error", e.getMessage());
@@ -97,7 +107,7 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
                 response.put("status", "error");
 
                 log.info("Responding with an error: {}", response);
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
+                session.sendMessage(new TextMessage(mapper.writeValueAsString(response)));
             }
         }
     }
