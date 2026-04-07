@@ -1,8 +1,6 @@
-import {AfterViewInit, Component, ElementRef, input, model, OnInit, viewChild} from '@angular/core';
+import { Component, ElementRef, input, model, OnInit, viewChild} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
-import 'monaco-editor/esm/vs/language/json/monaco.contribution';
-import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
+import * as monaco from 'monaco-editor'
 
 @Component({
   selector: 'app-message-renderer',
@@ -13,7 +11,7 @@ import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
   templateUrl: './message-renderer.component.html',
   styleUrl: './message-renderer.component.css',
 })
-export class MessageRenderer implements AfterViewInit, OnInit {
+export class MessageRenderer implements OnInit {
   public readOnly = input(false);
   public language = input('java');
   public payload = model.required<string>();
@@ -24,19 +22,13 @@ export class MessageRenderer implements AfterViewInit, OnInit {
 
   public ngOnInit(): void {
     this.editor = monaco.editor.create(this.editorContainer().nativeElement, {
-      value: this.payload(),
       language: this.language(),
+      readOnly: this.readOnly(),
       theme: 'vs-dark',
       automaticLayout: true,
       lineNumbers: 'on',
-      readOnly: this.readOnly()
+      value: this.payload(),
     });
-  }
-
-  public ngAfterViewInit(): void {
-    if (this.language() === 'json') {
-      this.editor.getAction("editor.action.formatDocument")?.run();
-    }
   }
 
   protected run(): void {

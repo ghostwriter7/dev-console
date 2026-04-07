@@ -1,29 +1,24 @@
 import {Component, OnInit, signal} from '@angular/core';
 import {MessageRenderer} from './message-renderer/message-renderer.component';
 import {ErrorOutput} from './error-output/error-output';
+import {v4 as uuid} from 'uuid';
+import {
+  AvailableServicesChangedEvent,
+  CommandOrEvent,
+  ErrorResult,
+  ScriptExecutedEvent,
+  SuccessResult
+} from './command-or-event.interface';
 
 interface Message {
-  type: 'input' | 'output' | 'error'
+  type: 'input' | 'output' | 'error';
   payload: string;
 }
 
-interface SuccessResponse extends Response {
-  status: 'success';
-  result: string;
-}
-
-interface ErrorResponse extends Response {
-  status: 'error';
-  error: string;
-  stackTrace: string;
-}
-
-interface Response {
-  status: 'success' | 'error';
-}
-
-const isErrorResponse = (response: unknown): response is ErrorResponse => (response as ErrorResponse)?.status === 'error';
-const isSuccessResponse = (response: unknown): response is SuccessResponse => (response as SuccessResponse)?.status === 'success';
+const isSuccessResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEvent<SuccessResult> =>
+  event.scriptResult.hasOwnProperty('result') && event.scriptResult.hasOwnProperty('stdOut');
+const isErrorResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEvent<ErrorResult> =>
+  event.scriptResult.hasOwnProperty('error') && event.scriptResult.hasOwnProperty('stackTrace');
 
 @Component({
   selector: 'app-root',
@@ -35,6 +30,7 @@ const isSuccessResponse = (response: unknown): response is SuccessResponse => (r
   styleUrl: './app.css'
 })
 export class App implements OnInit {
+  protected readonly availableServices = signal<string[]>([]);
   protected readonly messages = signal<Message[]>([{
     type: 'input',
     payload: ''
@@ -43,29 +39,33 @@ export class App implements OnInit {
   private ws?: WebSocket;
 
   public ngOnInit(): void {
-    this.ws = new WebSocket('wss://localhost:4858/underwriting-rest/v1/dev/console/ws');
+    this.ws = new WebSocket('ws://localhost:8080/v1/dev/console/ws');
 
     this.ws.addEventListener('message', (event: MessageEvent<string>) => {
       const {data} = event;
+      const commandOrEvent = this.tryParse(data);
 
-      const json = this.tryParse(data);
+      if (!commandOrEvent) return;
 
-      if (isSuccessResponse(json)) {
-        this.messages.update((messages) => [...messages, {
-          type: 'output',
-          payload: json.result
-        }]);
-      } else if (isErrorResponse(json)) {
-        this.messages.update((messages) => [...messages, {
-          type: 'error',
-          payload: json.error
-        }]);
+      switch (commandOrEvent.type) {
+        case 'scriptExecutedEvent':
+          this.handleScriptExecutedEvent(commandOrEvent as ScriptExecutedEvent);
+          break;
+        case 'availableServicesChangedEvent':
+          this.availableServices.set((commandOrEvent as AvailableServicesChangedEvent).services);
+          break;
       }
+
 
     });
 
     this.ws.addEventListener('open', (event) => {
       console.log('Connected');
+
+      this.ws!.send(JSON.stringify({
+          type: 'clientConnectCommand'
+        }
+      ));
     });
 
     this.ws.addEventListener('close', (event) => {
@@ -73,17 +73,36 @@ export class App implements OnInit {
     });
   }
 
-  protected tryParse(payload: string): object | null {
+  private tryParse(payload: string): CommandOrEvent | null {
     try {
       return JSON.parse(payload);
-    } catch  {
+    } catch {
       return null;
+    }
+  }
+
+  private handleScriptExecutedEvent(event: ScriptExecutedEvent): void {
+    if (isSuccessResponse(event)) {
+      this.messages.update((messages) => [...messages, {
+        type: 'output',
+        payload: event.scriptResult.result
+      }]);
+    } else if (isErrorResponse(event)) {
+      this.messages.update((messages) => [...messages, {
+        type: 'error',
+        payload: event.scriptResult.error
+      }]);
     }
   }
 
   protected onPayloadChange(payload?: string): void {
     if (this.ws && payload) {
-      this.ws.send(payload);
+      this.ws.send(JSON.stringify({
+        targetServiceName: 'demo',
+        uuid: uuid(),
+        type: 'executeScriptCommand',
+        script: payload
+      }));
     }
   }
 }

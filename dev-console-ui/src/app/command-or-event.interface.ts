@@ -21,7 +21,7 @@ export interface ExecuteScriptCommand extends CommandOrEvent {
 export interface ScriptExecutedEvent<T = ScriptResult> extends CommandOrEvent {
   type: 'scriptExecutedEvent';
   uuid: string;
-  result: T;
+  scriptResult: T;
 }
 
 export interface ScriptResult {

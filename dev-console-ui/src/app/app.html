@@ -1,4 +1,8 @@
 <main>
+  Available Services:
+  @for (srv of availableServices(); track srv) {
+    <span>{{ srv }}</span>
+  }
   @for (message of messages(); track message) {
     @switch (message.type) {
       @case ('input') {
