@@ -2,7 +2,8 @@ package com.rozplochowski.devconsole.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rozplochowski.devconsole.DevConsoleMessage;
+import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.ScriptResult;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import lombok.NonNull;
@@ -25,7 +26,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class DevConsoleWebSocketHandler implements WebSocketHandler {
+public class TargetServiceWebSocketHandler implements WebSocketHandler {
 
     private final ApplicationContext context;
     private final Environment environment;
@@ -69,7 +70,7 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
         session.getAttributes().put(SHELL, shell);
 
         log.info("Sending initial WebSocket message for app: {}", appName);
-        var payload = new DevConsoleMessage.ServerConnectCommand(appName);
+        var payload = new CommandOrEvent.ServerConnectCommand(appName);
         var message = mapper.writeValueAsString(payload);
 
         session.sendMessage(new TextMessage(message));
@@ -80,16 +81,16 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
         var payload = message.getPayload();
         log.info("Received message: {}", payload);
 
-        var actualMessage = mapper.readValue(payload.toString(), DevConsoleMessage.class);
+        var actualMessage = mapper.readValue(payload.toString(), CommandOrEvent.class);
 
-        if (actualMessage instanceof DevConsoleMessage.ServerConnectedEvent) {
+        if (actualMessage instanceof CommandOrEvent.ServerConnectedEvent) {
             log.info("Received acknowledgement from the server. Connection established.");
-        } else if (actualMessage instanceof DevConsoleMessage.ExecuteScriptCommand executeScriptCommand) {
+        } else if (actualMessage instanceof CommandOrEvent.ExecuteScriptCommand executeScriptCommand) {
             handleExecuteScriptCommand(session, executeScriptCommand);
         }
     }
 
-    private void handleExecuteScriptCommand(@NonNull WebSocketSession session, DevConsoleMessage.ExecuteScriptCommand executeScriptCommand) {
+    private void handleExecuteScriptCommand(@NonNull WebSocketSession session, CommandOrEvent.ExecuteScriptCommand executeScriptCommand) {
         var attributes = session.getAttributes();
         Binding binding = (Binding) attributes.get(BINDING);
         GroovyShell shell = (GroovyShell) attributes.get(SHELL);
@@ -102,26 +103,21 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
 
         try {
             var result = shell.evaluate(executeScriptCommand.script());
-            Map<String, Object> response = new HashMap<>();
-            response.put("status", "success");
-            response.put("result", result == null ? null : mapper.writeValueAsString(result));
-            response.put("output", output.toString());
 
-            var message = new DevConsoleMessage.ScriptExecutedEvent(executeScriptCommand.uuid(), response);
+            var jsonResult = result == null ? null : mapper.writeValueAsString(result);
+            var scriptResult = new ScriptResult.Success(jsonResult, output.toString());
+            var message = new CommandOrEvent.ScriptExecutedEvent(executeScriptCommand.uuid(), scriptResult);
 
             log.info("Responding with a success: {}", message);
 
             send(session, message);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", e.getMessage());
 
             var stringWriter = new StringWriter();
             e.printStackTrace(new PrintWriter(stringWriter));
-            response.put("stackTrace", stringWriter.toString());
-            response.put("status", "error");
 
-            var message = new DevConsoleMessage.ScriptExecutedEvent(executeScriptCommand.uuid(), response);
+            var scriptResult = new ScriptResult.Error(e.getMessage(), stringWriter.toString());
+            var message = new CommandOrEvent.ScriptExecutedEvent(executeScriptCommand.uuid(), scriptResult);
 
             log.info("Responding with an error: {}", message);
             send(session, message);
@@ -146,7 +142,7 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
         return false;
     }
 
-    private String serialize(DevConsoleMessage message) {
+    private String serialize(CommandOrEvent message) {
         try {
             return mapper.writeValueAsString(message);
         } catch (JsonProcessingException ex) {
@@ -154,7 +150,7 @@ public class DevConsoleWebSocketHandler implements WebSocketHandler {
         }
     }
 
-    private void send(WebSocketSession session, DevConsoleMessage message) {
+    private void send(WebSocketSession session, CommandOrEvent message) {
         try {
             var textMessage = new TextMessage(serialize(message));
             session.sendMessage(textMessage);

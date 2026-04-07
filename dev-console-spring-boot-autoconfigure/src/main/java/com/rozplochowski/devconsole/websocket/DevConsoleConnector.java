@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 @Component
 public class DevConsoleConnector {
 
-    private final DevConsoleWebSocketHandler handler;
+    private final TargetServiceWebSocketHandler handler;
     private final StandardWebSocketClient client = new StandardWebSocketClient();
     private final ThreadPoolTaskScheduler executor;
 

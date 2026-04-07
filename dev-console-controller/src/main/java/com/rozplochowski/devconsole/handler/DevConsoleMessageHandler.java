@@ -1,7 +1,7 @@
 package com.rozplochowski.devconsole.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rozplochowski.devconsole.DevConsoleMessage;
+import com.rozplochowski.devconsole.CommandOrEvent;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,35 +31,46 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
         log.info("Received message from session ID: {}", session.getId());
         var payload = message.getPayload();
 
-        DevConsoleMessage msg = mapper.readValue(payload.toString(), DevConsoleMessage.class);
+        CommandOrEvent msg = mapper.readValue(payload.toString(), CommandOrEvent.class);
 
-        if (msg instanceof DevConsoleMessage.ServerConnectCommand(String serviceName)) {
+        if (msg instanceof CommandOrEvent.ServerConnectCommand(String serviceName)) {
             handleServiceRegistration(serviceName, session);
-        } else if (msg instanceof DevConsoleMessage.ClientConnectCommand) {
+        } else if (msg instanceof CommandOrEvent.ClientConnectCommand) {
             log.info("Received ClientConnectCommand from {}. UI connected.", session.getId());
             client = session;
-        } else if (msg instanceof DevConsoleMessage.ExecuteScriptCommand executeScriptCommand) {
+            notifyClientAboutAvailableServices();
+        } else if (msg instanceof CommandOrEvent.ExecuteScriptCommand executeScriptCommand) {
             var targetSession = sessionByServerName.get(executeScriptCommand.targetServiceName());
             if (targetSession != null) {
                 targetSession.sendMessage(message);
             } else {
                 log.error("No session found for target service: {}", executeScriptCommand.targetServiceName());
             }
-        } else if (msg instanceof DevConsoleMessage.ScriptExecutedEvent scriptExecutedEvent) {
+        } else if (msg instanceof CommandOrEvent.ScriptExecutedEvent scriptExecutedEvent) {
             log.info("Received ScriptExecutedEvent from Session: {} for UUID: {}. Replaying back to UI.", session.getId(), scriptExecutedEvent.uuid());
             client.sendMessage(message);
         }
 
     }
 
+    private void notifyClientAboutAvailableServices() {
+        var availableServices = sessionByServerName.keySet().stream().toList();
+        var payload = new CommandOrEvent.AvailableServicesChangedEvent(availableServices);
+        send(client, payload);
+    }
+
     private void handleServiceRegistration(String serviceName, @NonNull WebSocketSession session) throws IOException {
         log.info("Received ServerConnectCommand from {}", serviceName);
         sessionByServerName.put(serviceName, session);
 
-        var payload = new DevConsoleMessage.ServerConnectedEvent(serviceName);
+        var payload = new CommandOrEvent.ServerConnectedEvent(serviceName);
         var message = mapper.writeValueAsString(payload);
         var response = new TextMessage(message);
         session.sendMessage(response);
+
+        if (client != null) {
+            notifyClientAboutAvailableServices();
+        }
     }
 
     @Override
@@ -77,5 +88,22 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
     @Override
     public boolean supportsPartialMessages() {
         return false;
+    }
+
+    private void send(WebSocketSession session, CommandOrEvent message) {
+        try {
+            var textMessage = new TextMessage(serialize(message));
+            session.sendMessage(textMessage);
+        } catch (IOException ex) {
+            log.error("Failed to send message to WebSocket session: {}", session.getId(), ex);
+        }
+    }
+
+    private String serialize(CommandOrEvent message) {
+        try {
+            return mapper.writeValueAsString(message);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not serialize JSON: " + e.getMessage());
+        }
     }
 }
