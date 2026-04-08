@@ -1,6 +1,6 @@
 import {Component, OnInit, signal} from '@angular/core';
 import {MessageRenderer} from './message-renderer/message-renderer.component';
-import {ErrorOutput} from './error-output/error-output';
+import {ErrorMessage} from './error-message/error-message.component';
 import {v4 as uuid} from 'uuid';
 import {
   AvailableServicesChangedEvent,
@@ -9,11 +9,7 @@ import {
   ScriptExecutedEvent,
   SuccessResult
 } from './command-or-event.interface';
-
-interface Message {
-  type: 'input' | 'output' | 'error';
-  payload: string;
-}
+import {UiMessage} from './ui-message.interface';
 
 const isSuccessResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEvent<SuccessResult> =>
   event.scriptResult.hasOwnProperty('result') && event.scriptResult.hasOwnProperty('stdOut');
@@ -25,13 +21,13 @@ const isErrorResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEve
   templateUrl: './app.html',
   imports: [
     MessageRenderer,
-    ErrorOutput
+    ErrorMessage
   ],
   styleUrl: './app.css'
 })
 export class App implements OnInit {
   protected readonly availableServices = signal<string[]>([]);
-  protected readonly messages = signal<Message[]>([{
+  protected readonly messages = signal<UiMessage[]>([{
     type: 'input',
     payload: ''
   }]);
@@ -85,12 +81,12 @@ export class App implements OnInit {
     if (isSuccessResponse(event)) {
       this.messages.update((messages) => [...messages, {
         type: 'output',
-        payload: event.scriptResult.result
+        payload: event.scriptResult
       }]);
     } else if (isErrorResponse(event)) {
       this.messages.update((messages) => [...messages, {
         type: 'error',
-        payload: event.scriptResult.error
+        payload: event.scriptResult
       }]);
     }
   }

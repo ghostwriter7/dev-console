@@ -11,12 +11,12 @@
       @case ('output') {
         <app-message-renderer
           language="json"
-          [payload]="message.payload"
+          [payload]="message.payload.result"
           [readOnly]="true"
-          />
+        />
       }
       @case ('error') {
-        <app-error-output [payload]="message.payload"/>
+        <app-error-message [error]="message.payload.error" [stackTrace]="message.payload.stackTrace"/>
       }
     }
 
