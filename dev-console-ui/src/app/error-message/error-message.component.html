@@ -1,8 +1,6 @@
 <clr-alert clrAlertType="danger" [clrAlertClosable]="false">
   <clr-alert-item>
-    <div class="container">
-      <span class="error">{{ error() }}</span>
-      <div class="stacktrace">{{ stackTrace() }}</div>
-    </div>
+    <span class="error" cds-text="message">{{ error() }}</span>
+    <div class="stacktrace">{{ stackTrace() }}</div>
   </clr-alert-item>
 </clr-alert>
