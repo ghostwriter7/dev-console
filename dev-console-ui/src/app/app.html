@@ -1,22 +1,19 @@
 <clr-main-container>
-  <app-nav />
+  <app-nav/>
 
   <div class="content">
-    Available Services:
-    @for (srv of availableServices(); track srv) {
-      <span>{{ srv }}</span>
-    }
     @for (message of messages(); track message) {
       @switch (message.type) {
         @case ('input') {
-          <app-message-renderer [payload]="message.payload" (payloadChange)="onPayloadChange($event)"/>
+          <app-script-control
+            [availableServices]="availableServices()"
+            [payload]="message.payload"
+            (payloadChange)="onPayloadChange($event)"
+            (activeService)="onActiveServiceChange($event)"
+          />
         }
         @case ('output') {
-          <app-message-renderer
-            language="json"
-            [payload]="message.payload.result"
-            [readOnly]="true"
-          />
+          <app-output-renderer [payload]="message.payload" />
         }
         @case ('error') {
           <app-error-message [error]="message.payload.error" [stackTrace]="message.payload.stackTrace"/>

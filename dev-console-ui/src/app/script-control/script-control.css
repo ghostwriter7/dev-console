@@ -1,0 +1,15 @@
+.script {
+  width: 100%;
+  padding: 1rem;
+  min-height: 150px;
+}
+
+::ng-deep .clr-combobox-form-control {
+  margin-top: 0;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.card-footer {
+  justify-content: space-between;
+}

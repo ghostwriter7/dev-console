@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { MessageRenderer } from './message-renderer/message-renderer.component';
+import { OutputRenderer } from './output-renderer/output-renderer';
+import { ScriptControl } from './script-control/script-control.component';
 import { ErrorMessage } from './error-message/error-message.component';
 import { v4 as uuid } from 'uuid';
 import {
@@ -22,11 +23,12 @@ const isErrorResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEve
   selector: 'app-root',
   templateUrl: './app.html',
   imports: [
-    MessageRenderer,
+    ScriptControl,
     ErrorMessage,
     ClrMainContainerModule,
     Nav,
-    ClrNavigationModule
+    ClrNavigationModule,
+    OutputRenderer
   ],
   styleUrl: './app.css'
 })
@@ -38,6 +40,7 @@ export class App implements OnInit {
   }]);
 
   private ws?: WebSocket;
+  private activeService: string | null = null;
 
   public ngOnInit(): void {
     this.ws = new WebSocket('ws://localhost:8080/v1/dev/console/ws');
@@ -54,6 +57,9 @@ export class App implements OnInit {
           break;
         case 'availableServicesChangedEvent':
           this.availableServices.set((commandOrEvent as AvailableServicesChangedEvent).services);
+          if (!this.activeService || !this.availableServices().includes(this.activeService)) {
+            this.activeService = this.availableServices()[0];
+          }
           break;
       }
 
@@ -97,13 +103,17 @@ export class App implements OnInit {
   }
 
   protected onPayloadChange(payload?: string): void {
-    if (this.ws && payload) {
+    if (this.ws && payload && this.activeService) {
       this.ws.send(JSON.stringify({
-        targetServiceName: 'demo',
+        targetServiceName: this.activeService,
         uuid: uuid(),
         type: 'executeScriptCommand',
         script: payload
       }));
     }
+  }
+
+  protected onActiveServiceChange(serviceName: string | null): void {
+    this.activeService = serviceName;
   }
 }

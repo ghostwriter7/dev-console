@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MessageRenderer } from './message-renderer.component';
+import { OutputRenderer } from './output-renderer';
 
-describe('ScriptInput', () => {
-  let component: MessageRenderer;
-  let fixture: ComponentFixture<MessageRenderer>;
+describe('OutputRenderer', () => {
+  let component: OutputRenderer;
+  let fixture: ComponentFixture<OutputRenderer>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MessageRenderer],
+      imports: [OutputRenderer],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MessageRenderer);
+    fixture = TestBed.createComponent(OutputRenderer);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
