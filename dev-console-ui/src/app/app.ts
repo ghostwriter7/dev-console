@@ -36,7 +36,8 @@ export class App implements OnInit {
   protected readonly availableServices = signal<string[]>([]);
   protected readonly messages = signal<UiMessage[]>([{
     type: 'input',
-    payload: ''
+    payload: '',
+    uuid: uuid(),
   }]);
 
   private ws?: WebSocket;
@@ -88,18 +89,39 @@ export class App implements OnInit {
     }
   }
 
-  private handleScriptExecutedEvent(event: ScriptExecutedEvent): void {
+  private createUiMessageFromEvent(event: ScriptExecutedEvent): UiMessage | null {
     if (isSuccessResponse(event)) {
-      this.messages.update((messages) => [...messages, {
+      return {
         type: 'output',
-        payload: event.scriptResult
-      }]);
+        payload: event.scriptResult,
+        uuid: event.uuid,
+      };
     } else if (isErrorResponse(event)) {
-      this.messages.update((messages) => [...messages, {
+      return {
         type: 'error',
-        payload: event.scriptResult
-      }]);
+        payload: event.scriptResult,
+        uuid: event.uuid,
+      };
     }
+    return null;
+  }
+
+  private handleScriptExecutedEvent(event: ScriptExecutedEvent): void {
+    const uiMessage = this.createUiMessageFromEvent(event);
+
+    if (!uiMessage) return;
+
+    this.messages.update((messages) => {
+      const idx = messages.findIndex((m) => m.uuid === event.uuid);
+
+      if (idx !== -1) return messages.with(idx, uiMessage);
+      return [...messages, uiMessage];
+    });
+    this.messages.update((messages) => [...messages, {
+      type: 'input',
+      payload: '',
+      uuid: uuid(),
+    }])
   }
 
   protected onPayloadChange(payload?: string): void {

@@ -5,6 +5,7 @@ export type UiMessage = InputMessage | SuccessMessage | ErrorMessage;
 interface Message {
   type: 'input' | 'output' | 'error';
   payload: string | ErrorResult | SuccessResult;
+  uuid: string;
 }
 
 export interface ErrorMessage extends Message {

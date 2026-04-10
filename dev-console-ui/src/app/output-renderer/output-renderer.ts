@@ -32,7 +32,7 @@ export class OutputRenderer implements OnInit {
   }
 
   protected renderResult(): void {
-    this.editor.setValue(this.payload().result);
+    this.editor.setValue(this.payload().result || '');
   }
 
   protected renderStdOut(): void {
