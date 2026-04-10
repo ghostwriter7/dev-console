@@ -1,7 +1,7 @@
-import {Component, OnInit, signal} from '@angular/core';
-import {MessageRenderer} from './message-renderer/message-renderer.component';
-import {ErrorMessage} from './error-message/error-message.component';
-import {v4 as uuid} from 'uuid';
+import { Component, OnInit, signal } from '@angular/core';
+import { MessageRenderer } from './message-renderer/message-renderer.component';
+import { ErrorMessage } from './error-message/error-message.component';
+import { v4 as uuid } from 'uuid';
 import {
   AvailableServicesChangedEvent,
   CommandOrEvent,
@@ -9,7 +9,9 @@ import {
   ScriptExecutedEvent,
   SuccessResult
 } from './command-or-event.interface';
-import {UiMessage} from './ui-message.interface';
+import { UiMessage } from './ui-message.interface';
+import { ClrMainContainerModule, ClrNavigationModule } from '@clr/angular';
+import { Nav } from './nav/nav';
 
 const isSuccessResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEvent<SuccessResult> =>
   event.scriptResult.hasOwnProperty('result') && event.scriptResult.hasOwnProperty('stdOut');
@@ -21,7 +23,10 @@ const isErrorResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEve
   templateUrl: './app.html',
   imports: [
     MessageRenderer,
-    ErrorMessage
+    ErrorMessage,
+    ClrMainContainerModule,
+    Nav,
+    ClrNavigationModule
   ],
   styleUrl: './app.css'
 })

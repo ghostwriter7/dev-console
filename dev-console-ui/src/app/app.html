@@ -1,27 +1,32 @@
-<main>
-  Available Services:
-  @for (srv of availableServices(); track srv) {
-    <span>{{ srv }}</span>
-  }
-  @for (message of messages(); track message) {
-    @switch (message.type) {
-      @case ('input') {
-        <app-message-renderer [payload]="message.payload" (payloadChange)="onPayloadChange($event)"/>
-      }
-      @case ('output') {
-        <app-message-renderer
-          language="json"
-          [payload]="message.payload.result"
-          [readOnly]="true"
-        />
-      }
-      @case ('error') {
-        <app-error-message [error]="message.payload.error" [stackTrace]="message.payload.stackTrace"/>
-      }
-    }
+<clr-main-container>
+  <app-nav />
 
-    @if (!$last) {
-      <hr/>
+  <div class="content">
+    Available Services:
+    @for (srv of availableServices(); track srv) {
+      <span>{{ srv }}</span>
     }
-  }
-</main>
+    @for (message of messages(); track message) {
+      @switch (message.type) {
+        @case ('input') {
+          <app-message-renderer [payload]="message.payload" (payloadChange)="onPayloadChange($event)"/>
+        }
+        @case ('output') {
+          <app-message-renderer
+            language="json"
+            [payload]="message.payload.result"
+            [readOnly]="true"
+          />
+        }
+        @case ('error') {
+          <app-error-message [error]="message.payload.error" [stackTrace]="message.payload.stackTrace"/>
+        }
+      }
+
+      @if (!$last) {
+        <hr/>
+      }
+    }
+  </div>
+
+</clr-main-container>
