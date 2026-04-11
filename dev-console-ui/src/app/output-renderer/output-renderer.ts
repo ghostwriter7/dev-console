@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, OnInit, viewChild, viewChildren } from '@angular/core';
+import { Component, effect, ElementRef, input, OnInit, viewChild, viewChildren } from '@angular/core';
 import {
   ClrComboboxModule,
   ClrCommonFormsModule,
@@ -25,27 +25,50 @@ export class OutputRenderer implements OnInit {
 
   private editor!: monaco.editor.IStandaloneCodeEditor;
   private readonly tabLinks = viewChildren(ClrTabLink);
-  public ngOnInit(): void {
-    const activeTab = this.payload().result ? 'result' : 'stdOut';
 
+  constructor() {
+    effect(() => {
+      const payload = this.payload();
+
+      if (!payload) return;
+
+      const activeTab = payload.result ? 'result' : 'stdOut';
+      const activeTabIndex = activeTab === 'result' ? 0 : 1;
+      this.tabLinks().at(activeTabIndex)?.activate();
+      if (activeTab === 'result') {
+        this.renderResult();
+      } else {
+        this.renderStdOut();
+      }
+    });
+  }
+
+  public ngOnInit(): void {
     this.editor = monaco.editor.create(this.editorContainer().nativeElement, {
-      language: 'json',
       readOnly: true,
       theme: 'vs-dark',
       automaticLayout: true,
       lineNumbers: 'on',
-      value: this.payload()[activeTab],
+      model: null,
     });
-
-    const activeTabIndex = activeTab === 'result' ? 0 : 1;
-    this.tabLinks().at(activeTabIndex)?.activate();
   }
 
   protected renderResult(): void {
-    this.editor.setValue(this.payload().result || '');
+    const {result} = this.payload();
+    let formattedJson: string | undefined;
+
+    try {
+      formattedJson = JSON.stringify(JSON.parse(result), null, 2);
+    } catch (e) {
+      console.error(`Couldn't pretty-print the output.`, e);
+    }
+
+    const language = formattedJson ? 'json' : 'text';
+
+    this.editor.setModel(monaco.editor.createModel(formattedJson || result || '', language));
   }
 
   protected renderStdOut(): void {
-    this.editor.setValue(this.payload().stdOut || '');
+    this.editor.setModel(monaco.editor.createModel(this.payload().stdOut || '', 'text'));
   }
 }
