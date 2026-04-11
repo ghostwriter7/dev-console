@@ -6,7 +6,6 @@ import {
   ClrTabsModule,
 } from '@clr/angular';
 import * as monaco from 'monaco-editor';
-import { SuccessResult } from '../command-or-event.interface';
 
 @Component({
   selector: 'app-output-renderer',
@@ -19,7 +18,8 @@ import { SuccessResult } from '../command-or-event.interface';
   styleUrl: './output-renderer.css',
 })
 export class OutputRenderer implements OnInit {
-  public payload = input.required<SuccessResult>();
+  public stdOut = input<string>();
+  public result = input<string>();
 
   protected readonly editorContainer = viewChild.required<ElementRef<HTMLDivElement>>('editor');
 
@@ -28,11 +28,12 @@ export class OutputRenderer implements OnInit {
 
   constructor() {
     effect(() => {
-      const payload = this.payload();
+      const stdOut = this.stdOut();
+      const result = this.result();
 
-      if (!payload) return;
+      if (!stdOut && !result) return;
 
-      const activeTab = payload.result ? 'result' : 'stdOut';
+      const activeTab = result ? 'result' : 'stdOut';
       const activeTabIndex = activeTab === 'result' ? 0 : 1;
       this.tabLinks().at(activeTabIndex)?.activate();
       if (activeTab === 'result') {
@@ -54,13 +55,15 @@ export class OutputRenderer implements OnInit {
   }
 
   protected renderResult(): void {
-    const {result} = this.payload();
+    const result = this.result();
     let formattedJson: string | undefined;
 
-    try {
-      formattedJson = JSON.stringify(JSON.parse(result), null, 2);
-    } catch (e) {
-      console.error(`Couldn't pretty-print the output.`, e);
+    if (result) {
+      try {
+        formattedJson = JSON.stringify(JSON.parse(result), null, 2);
+      } catch (e) {
+        console.error(`Couldn't pretty-print the output.`, e);
+      }
     }
 
     const language = formattedJson ? 'json' : 'text';
@@ -69,6 +72,6 @@ export class OutputRenderer implements OnInit {
   }
 
   protected renderStdOut(): void {
-    this.editor.setModel(monaco.editor.createModel(this.payload().stdOut || '', 'text'));
+    this.editor.setModel(monaco.editor.createModel(this.stdOut() || '', 'text'));
   }
 }

@@ -1,0 +1,42 @@
+<div class="clr-row">
+  <div class="clr-col-12">
+    <div class="card">
+      <div class="card-header">Cell #{{ oneBasedIndex() }}</div>
+      <div class="card-block">
+        <clr-accordion [clrAccordionMultiPanel]="true">
+          <clr-accordion-panel [clrAccordionPanelOpen]="true">
+            <clr-accordion-title>Script</clr-accordion-title>
+            <clr-accordion-content *clrIfExpanded>
+              <app-script-control
+                [uuid]="group().uuid"
+                [payload]="group().script"
+              />
+            </clr-accordion-content>
+          </clr-accordion-panel>
+
+          <clr-accordion-panel
+            [clrAccordionPanelOpen]="!group().hasNoOutput"
+            [clrAccordionPanelDisabled]="group().hasNoOutput">
+            <clr-accordion-title>Response</clr-accordion-title>
+            <clr-accordion-content *clrIfExpanded>
+              @let result = group().result;
+
+              @if (result) {
+                @if ('result' in result) {
+                  <app-output-renderer [result]="result.result" [stdOut]="result.stdOut"/>
+                } @else {
+                  <app-error-renderer
+                    [error]="result.error"
+                    [stackTrace]="result.stackTrace"
+                  />
+                }
+              }
+            </clr-accordion-content>
+          </clr-accordion-panel>
+
+        </clr-accordion>
+      </div>
+      <app-message-group-actions [group]="group()" />
+    </div>
+  </div>
+</div>

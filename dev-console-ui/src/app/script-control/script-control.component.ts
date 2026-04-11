@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, OnDestroy, OnInit, output, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, input, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule } from '@clr/angular';
 import * as monaco from 'monaco-editor'
@@ -37,14 +37,13 @@ export class ScriptControl implements OnInit, OnDestroy {
       this.editor.onDidBlurEditorWidget(() => this.store.deactivateCell()),
       this.editor.onDidFocusEditorWidget(() => this.store.activateCell(this.uuid()))
     );
+
+    this.editor.onDidChangeModelContent(() => {
+      this.store.updateScript(this.editor.getValue());
+    });
   }
 
   public ngOnDestroy(): void {
     this.disposables.forEach((d) => d.dispose());
-  }
-
-  public getScript(): string {
-    const value = this.editor.getValue();
-    return value.trim();
   }
 }

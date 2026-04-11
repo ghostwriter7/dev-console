@@ -20,6 +20,7 @@ export interface SuccessMessage extends Message {
 
 export interface InputMessage extends Message {
   type: 'input';
+  service: string;
   payload: string;
 }
 

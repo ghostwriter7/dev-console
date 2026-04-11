@@ -1,0 +1,5 @@
+<div class="content">
+  @for (group of groupedMessages(); track group.uuid) {
+    <app-message-group [group]="group" [index]="$index" />
+  }
+</div>

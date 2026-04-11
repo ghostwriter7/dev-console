@@ -1,8 +1,10 @@
-import { Component, computed, effect, input } from '@angular/core';
-import { outputFromObservable } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, DestroyRef, inject, input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule, ClrCommonFormsModule } from '@clr/angular';
-import * as monaco from 'monaco-editor';
+import { DevConsoleStore } from '../dev-console.store';
+import { UiMessageGroup } from '../model/ui-message-group.interface';
+import { ScriptExecutorService } from '../script-executor/script-executor.service';
 
 @Component({
   selector: 'app-message-group-actions',
@@ -14,26 +16,29 @@ import * as monaco from 'monaco-editor';
   templateUrl: './message-group-actions.html',
   styleUrl: './message-group-actions.css',
 })
-export class MessageGroupActions {
-  public availableServices = input.required<string[]>();
+export class MessageGroupActions implements OnInit {
+  public group = input.required<UiMessageGroup>();
 
+  private readonly store = inject(DevConsoleStore);
+
+  protected readonly availableServices = this.store.availableServices;
   protected readonly hasNoServices = computed(() => !this.availableServices().length);
-  protected readonly serviceControl = new FormControl<string | null>(null);
 
-  public activeService = outputFromObservable(this.serviceControl.valueChanges);
+  protected serviceControl!: FormControl<string>;
 
-  constructor() {
-    effect(() => {
-      const control = this.serviceControl;
-      const services = this.availableServices();
-      if (!services.length) {
-        control.reset({value: null, disabled: true});
-      } else if (!control.value) {
-        control.setValue(services[0]);
-        if (control.disabled) {
-          control.enable();
-        }
-      }
-    });
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly scriptExecutorService = inject(ScriptExecutorService);
+
+  public ngOnInit(): void {
+    this.serviceControl = this.formBuilder.control(this.group().service);
+
+    this.serviceControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((service) => this.store.setActiveServiceForCell(this.group().uuid, service));
+  }
+
+  protected runScript(): void {
+    this.scriptExecutorService.executeScript(this.group().uuid);
   }
 }
