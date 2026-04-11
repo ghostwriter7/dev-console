@@ -112,25 +112,24 @@ export class App implements OnInit {
     if (!uiMessage) return;
 
     this.messages.update((messages) => {
-      const idx = messages.findIndex((m) => m.uuid === event.uuid);
+      const idx = messages.findIndex((m) => m.uuid === event.uuid && m.type !== 'input');
 
       if (idx !== -1) return messages.with(idx, uiMessage);
-      return [...messages, uiMessage];
+      return [...messages, uiMessage, {
+        type: 'input',
+        payload: '',
+        uuid: uuid(),
+      }];
     });
-    this.messages.update((messages) => [...messages, {
-      type: 'input',
-      payload: '',
-      uuid: uuid(),
-    }])
   }
 
-  protected onPayloadChange(payload?: string): void {
-    if (this.ws && payload && this.activeService) {
+  protected onPayloadChange(uuid: string, script?: string): void {
+    if (this.ws && script && this.activeService) {
       this.ws.send(JSON.stringify({
         targetServiceName: this.activeService,
-        uuid: uuid(),
+        uuid,
         type: 'executeScriptCommand',
-        script: payload
+        script
       }));
     }
   }

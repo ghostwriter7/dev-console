@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, input, model, OnInit, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, input, model, OnInit, output, viewChild } from '@angular/core';
 import { outputFromObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule } from '@clr/angular';
@@ -16,7 +16,8 @@ import * as monaco from 'monaco-editor'
 })
 export class ScriptControl implements OnInit {
   public availableServices = input.required<string[]>();
-  public payload = model.required<string>();
+  public payload = input.required<string>();
+  public payloadChange = output<string>()
 
   protected readonly hasNoServices = computed(() => !this.availableServices().length);
 
@@ -32,7 +33,7 @@ export class ScriptControl implements OnInit {
       const control = this.serviceControl;
       const services = this.availableServices();
       if (!services.length) {
-        control.reset({ value: null, disabled: true });
+        control.reset({value: null, disabled: true});
       } else if (!control.value) {
         control.setValue(services[0]);
         if (control.disabled) {
@@ -55,6 +56,10 @@ export class ScriptControl implements OnInit {
 
   protected run(): void {
     const value = this.editor.getValue();
-    this.payload.set(value || '');
+    const trimmedValue = value.trim();
+
+    if (trimmedValue !== '') {
+      this.payloadChange.emit(trimmedValue);
+    }
   }
 }

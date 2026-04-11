@@ -8,7 +8,7 @@
           <app-script-control
             [availableServices]="availableServices()"
             [payload]="message.payload"
-            (payloadChange)="onPayloadChange($event)"
+            (payloadChange)="onPayloadChange(message.uuid, $event)"
             (activeService)="onActiveServiceChange($event)"
           />
         }
