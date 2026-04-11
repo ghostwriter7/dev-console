@@ -11,9 +11,9 @@
   "private": true,
   "packageManager": "npm@11.6.2",
   "dependencies": {
+    "@angular/animations": "^21.2.0",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
-    "@angular/animations": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
@@ -21,6 +21,7 @@
     "@cds/core": "^6.17.0",
     "@clr/angular": "^18.0.0-beta.5",
     "@clr/ui": "^18.0.0-beta.5",
+    "@ngrx/signals": "^21.1.0",
     "monaco-editor": "^0.55.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

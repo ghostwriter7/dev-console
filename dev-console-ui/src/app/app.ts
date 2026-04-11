@@ -1,4 +1,5 @@
-import { Component, computed, OnInit, signal, viewChildren } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChildren } from '@angular/core';
+import { DevConsoleStore } from './dev-console.store';
 import { ErrorRenderer } from './error-renderer/error-renderer.component';
 import { MessageGroupActions } from './message-group-actions/message-group-actions';
 import { OutputRenderer } from './output-renderer/output-renderer';
@@ -56,6 +57,7 @@ interface MessageGroup {
     MessageGroupActions,
     ClrAccordionModule
   ],
+  providers: [DevConsoleStore],
   styleUrl: './app.css'
 })
 export class App implements OnInit {
@@ -66,6 +68,7 @@ export class App implements OnInit {
     uuid: uuid(),
   }]);
   private readonly scriptControls = viewChildren(ScriptControl);
+  protected readonly store = inject(DevConsoleStore);
 
   protected readonly groupedMessages = computed<MessageGroup[]>(() =>
     this.messages().reduce((groups, message) => {
@@ -192,5 +195,9 @@ export class App implements OnInit {
         script
       }));
     }
+  }
+
+  protected onCellGroupClick(uuid: string): void {
+
   }
 }
