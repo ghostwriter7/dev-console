@@ -1,0 +1,9 @@
+.card-footer {
+  justify-content: space-between;
+}
+
+::ng-deep .clr-combobox-form-control {
+  margin-top: 0;
+  flex-direction: row;
+  gap: 0.5rem;
+}

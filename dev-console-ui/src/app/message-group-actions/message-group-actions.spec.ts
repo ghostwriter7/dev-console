@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ErrorMessage } from './error-message.component';
+import { MessageGroupActions } from './message-group-actions';
 
-describe('ErrorOutput', () => {
-  let component: ErrorMessage;
-  let fixture: ComponentFixture<ErrorMessage>;
+describe('MessageGroupActions', () => {
+  let component: MessageGroupActions;
+  let fixture: ComponentFixture<MessageGroupActions>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ErrorMessage],
+      imports: [MessageGroupActions],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ErrorMessage);
+    fixture = TestBed.createComponent(MessageGroupActions);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

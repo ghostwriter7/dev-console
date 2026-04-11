@@ -1,18 +1,9 @@
-<div class="clr-row">
-  <div class="clr-col-12">
-    <div class="card">
-      <div class="card-header">Output</div>
-      <div class="card-block">
-        <clr-tabs>
-          <clr-tab>
-            <button clrTabLink (click)="renderResult()">Result</button>
-          </clr-tab>
-          <clr-tab>
-            <button clrTabLink (click)="renderStdOut()">Std Out</button>
-          </clr-tab>
-        </clr-tabs>
-        <div style="min-height: 250px;" #editor></div>
-      </div>
-    </div>
-  </div>
-</div>
+<clr-tabs>
+  <clr-tab>
+    <button clrTabLink (click)="renderResult()">Result</button>
+  </clr-tab>
+  <clr-tab>
+    <button clrTabLink (click)="renderStdOut()">Std Out</button>
+  </clr-tab>
+</clr-tabs>
+<div style="min-height: 250px;" #editor></div>

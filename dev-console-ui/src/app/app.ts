@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal, viewChildren } from '@angular/core';
+import { ErrorRenderer } from './error-renderer/error-renderer.component';
+import { MessageGroupActions } from './message-group-actions/message-group-actions';
 import { OutputRenderer } from './output-renderer/output-renderer';
 import { ScriptControl } from './script-control/script-control.component';
-import { ErrorMessage } from './error-message/error-message.component';
 import { v4 as uuid } from 'uuid';
 import {
   AvailableServicesChangedEvent,
@@ -10,8 +11,21 @@ import {
   ScriptExecutedEvent,
   SuccessResult
 } from './command-or-event.interface';
-import { UiMessage } from './ui-message.interface';
-import { ClrMainContainerModule, ClrNavigationModule } from '@clr/angular';
+import {
+  ErrorMessage,
+  InputMessage,
+  isErrorMessage,
+  isInputMessage,
+  SuccessMessage,
+  UiMessage
+} from './ui-message.interface';
+import {
+  ClrAccordionModule,
+  ClrComboboxModule,
+  ClrCommonFormsModule,
+  ClrMainContainerModule,
+  ClrNavigationModule
+} from '@clr/angular';
 import { Nav } from './nav/nav';
 
 const isSuccessResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEvent<SuccessResult> =>
@@ -19,26 +33,63 @@ const isSuccessResponse = (event: ScriptExecutedEvent): event is ScriptExecutedE
 const isErrorResponse = (event: ScriptExecutedEvent): event is ScriptExecutedEvent<ErrorResult> =>
   event.scriptResult.hasOwnProperty('error') && event.scriptResult.hasOwnProperty('stackTrace');
 
+interface MessageGroup {
+  input: InputMessage;
+  error?: ErrorMessage;
+  output?: SuccessMessage;
+  uuid: string;
+  hasNoOutput: boolean;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   imports: [
     ScriptControl,
-    ErrorMessage,
+    ErrorRenderer,
     ClrMainContainerModule,
     Nav,
     ClrNavigationModule,
-    OutputRenderer
+    OutputRenderer,
+    ClrComboboxModule,
+    ClrCommonFormsModule,
+    MessageGroupActions,
+    ClrAccordionModule
   ],
   styleUrl: './app.css'
 })
 export class App implements OnInit {
   protected readonly availableServices = signal<string[]>([]);
-  protected readonly messages = signal<UiMessage[]>([{
+  private readonly messages = signal<UiMessage[]>([{
     type: 'input',
     payload: '',
     uuid: uuid(),
   }]);
+  private readonly scriptControls = viewChildren(ScriptControl);
+
+  protected readonly groupedMessages = computed<MessageGroup[]>(() =>
+    this.messages().reduce((groups, message) => {
+      if (isInputMessage(message)) {
+        groups.push({
+          input: message,
+          uuid: message.uuid,
+          hasNoOutput: true,
+        });
+      } else {
+        const lastGroup = groups.at(-1)!;
+        lastGroup.hasNoOutput = false;
+        if (lastGroup) {
+          if (isErrorMessage(message)) {
+            lastGroup.error = message;
+          } else {
+            lastGroup.output = message;
+          }
+        }
+      }
+
+      return groups;
+    }, [] as MessageGroup[])
+  )
 
   private ws?: WebSocket;
   private activeService: string | null = null;
@@ -123,7 +174,16 @@ export class App implements OnInit {
     });
   }
 
-  protected onPayloadChange(uuid: string, script?: string): void {
+  protected onActiveServiceChange(serviceName: string | null): void {
+    this.activeService = serviceName;
+  }
+
+  protected runScript(uuid: string): void {
+    const scriptControls = this.scriptControls();
+    const targetControl = scriptControls.find((scriptControl) => scriptControl.uuid() === uuid);
+
+    const script = targetControl?.getScript();
+
     if (this.ws && script && this.activeService) {
       this.ws.send(JSON.stringify({
         targetServiceName: this.activeService,
@@ -132,9 +192,5 @@ export class App implements OnInit {
         script
       }));
     }
-  }
-
-  protected onActiveServiceChange(serviceName: string | null): void {
-    this.activeService = serviceName;
   }
 }

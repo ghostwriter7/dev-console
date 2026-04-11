@@ -2,27 +2,52 @@
   <app-nav/>
 
   <div class="content">
-    @for (message of messages(); track message) {
-      @switch (message.type) {
-        @case ('input') {
-          <app-script-control
-            [availableServices]="availableServices()"
-            [payload]="message.payload"
-            (payloadChange)="onPayloadChange(message.uuid, $event)"
-            (activeService)="onActiveServiceChange($event)"
-          />
-        }
-        @case ('output') {
-          <app-output-renderer [payload]="message.payload" />
-        }
-        @case ('error') {
-          <app-error-message [error]="message.payload.error" [stackTrace]="message.payload.stackTrace"/>
-        }
-      }
+    @for (group of groupedMessages(); track group.uuid) {
+      <div class="clr-row">
+        <div class="clr-col-12">
+          <div class="card">
+            <div class="card-header">Cell #{{ $index + 1 }}</div>
+            <div class="card-block">
+              <clr-accordion [clrAccordionMultiPanel]="true">
+                <clr-accordion-panel [clrAccordionPanelOpen]="true">
+                  <clr-accordion-title>Script</clr-accordion-title>
+                  <clr-accordion-content *clrIfExpanded>
+                    <app-script-control
+                      [uuid]="group.uuid"
+                      [payload]="group.input.payload"
+                    />
+                  </clr-accordion-content>
+                </clr-accordion-panel>
 
-      @if (!$last) {
-        <hr/>
-      }
+                <clr-accordion-panel
+                  [clrAccordionPanelOpen]="!group.hasNoOutput"
+                  [clrAccordionPanelDisabled]="group.hasNoOutput">
+                  <clr-accordion-title>Response</clr-accordion-title>
+                  <clr-accordion-content *clrIfExpanded>
+                    @if (group.output; as output) {
+                      <app-output-renderer [payload]="output.payload"/>
+                    }
+
+                    @if (group.error; as error) {
+                      <app-error-renderer
+                        [error]="error.payload.error"
+                        [stackTrace]="error.payload.stackTrace"
+                      />
+                    }
+                  </clr-accordion-content>
+                </clr-accordion-panel>
+
+              </clr-accordion>
+            </div>
+            <app-message-group-actions
+              [availableServices]="availableServices()"
+              (activeService)="onActiveServiceChange($event)"
+            >
+              <button class="btn btn-sm" (click)="runScript(group.uuid)">Run</button>
+            </app-message-group-actions>
+          </div>
+        </div>
+      </div>
     }
   </div>
 

@@ -1,0 +1,17 @@
+<div class="card-footer">
+  <ng-content></ng-content>
+
+  <clr-combobox-container>
+    <label>Service</label>
+    <clr-combobox [formControl]="serviceControl">
+      <clr-options>
+        <clr-option *clrOptionItems="let service of availableServices();" [clrValue]="service">
+          {{ service }}
+        </clr-option>
+      </clr-options>
+    </clr-combobox>
+    @if (hasNoServices()) {
+      <clr-control-helper>There are no available services.</clr-control-helper>
+    }
+  </clr-combobox-container>
+</div>

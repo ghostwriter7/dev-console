@@ -1,6 +1,5 @@
-import { Component, computed, effect, ElementRef, input, model, OnInit, output, viewChild } from '@angular/core';
-import { outputFromObservable } from '@angular/core/rxjs-interop';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, ElementRef, input, OnInit, output, viewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule } from '@clr/angular';
 import * as monaco from 'monaco-editor'
 
@@ -15,34 +14,12 @@ import * as monaco from 'monaco-editor'
   styleUrl: './script-control.css',
 })
 export class ScriptControl implements OnInit {
-  public availableServices = input.required<string[]>();
+  public uuid = input.required<string>();
   public payload = input.required<string>();
-  public payloadChange = output<string>()
-
-  protected readonly hasNoServices = computed(() => !this.availableServices().length);
 
   private readonly editorContainer = viewChild.required<ElementRef<HTMLDivElement>>('editor');
 
   private editor!: monaco.editor.IStandaloneCodeEditor;
-  protected readonly serviceControl = new FormControl<string | null>(null);
-
-  public activeService = outputFromObservable(this.serviceControl.valueChanges);
-
-  constructor() {
-    effect(() => {
-      const control = this.serviceControl;
-      const services = this.availableServices();
-      if (!services.length) {
-        control.reset({value: null, disabled: true});
-      } else if (!control.value) {
-        control.setValue(services[0]);
-        if (control.disabled) {
-          control.enable();
-        }
-      }
-    });
-  }
-
 
   public ngOnInit(): void {
     this.editor = monaco.editor.create(this.editorContainer().nativeElement, {
@@ -54,12 +31,8 @@ export class ScriptControl implements OnInit {
     });
   }
 
-  protected run(): void {
+  public getScript(): string {
     const value = this.editor.getValue();
-    const trimmedValue = value.trim();
-
-    if (trimmedValue !== '') {
-      this.payloadChange.emit(trimmedValue);
-    }
+    return value.trim();
   }
 }
