@@ -1,5 +1,10 @@
-import { Component, computed, ElementRef, input, OnInit, signal, viewChild } from '@angular/core';
-import { ClrComboboxModule, ClrCommonFormsModule, ClrTabsModule } from '@clr/angular';
+import { Component, ElementRef, input, OnInit, viewChild, viewChildren } from '@angular/core';
+import {
+  ClrComboboxModule,
+  ClrCommonFormsModule,
+  ClrTabLink,
+  ClrTabsModule,
+} from '@clr/angular';
 import * as monaco from 'monaco-editor';
 import { SuccessResult } from '../command-or-event.interface';
 
@@ -19,16 +24,21 @@ export class OutputRenderer implements OnInit {
   protected readonly editorContainer = viewChild.required<ElementRef<HTMLDivElement>>('editor');
 
   private editor!: monaco.editor.IStandaloneCodeEditor;
-
+  private readonly tabLinks = viewChildren(ClrTabLink);
   public ngOnInit(): void {
+    const activeTab = this.payload().result ? 'result' : 'stdOut';
+
     this.editor = monaco.editor.create(this.editorContainer().nativeElement, {
       language: 'json',
       readOnly: true,
       theme: 'vs-dark',
       automaticLayout: true,
       lineNumbers: 'on',
-      value: this.payload().result,
+      value: this.payload()[activeTab],
     });
+
+    const activeTabIndex = activeTab === 'result' ? 0 : 1;
+    this.tabLinks().at(activeTabIndex)?.activate();
   }
 
   protected renderResult(): void {
