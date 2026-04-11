@@ -1,0 +1,7 @@
+.card-header {
+  display: flex;
+}
+
+.remove-btn {
+  margin-left: auto;
+}

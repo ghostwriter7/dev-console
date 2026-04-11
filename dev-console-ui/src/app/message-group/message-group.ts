@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
-import { ClrAccordionModule, ClrIfExpanded } from "@clr/angular";
+import { Component, computed, inject, input } from '@angular/core';
+import { ClrAccordionModule, ClrIcon, ClrIfExpanded } from "@clr/angular";
+import { DevConsoleStore } from '../dev-console.store';
 import {ErrorRenderer} from "../error-renderer/error-renderer.component";
 import {MessageGroupActions} from "../message-group-actions/message-group-actions";
 import { ErrorResult, SuccessResult } from '../model/command-or-event.interface';
@@ -15,7 +16,8 @@ import {ScriptControl} from "../script-control/script-control.component";
     MessageGroupActions,
     OutputRenderer,
     ScriptControl,
-    ClrIfExpanded
+    ClrIfExpanded,
+    ClrIcon
   ],
   templateUrl: './message-group.html',
   styleUrl: './message-group.css',
@@ -25,4 +27,9 @@ export class MessageGroup {
   public group = input.required<UiMessageGroup>();
 
   protected readonly oneBasedIndex = computed(() => this.index() + 1);
+  private readonly store = inject(DevConsoleStore);
+
+  protected removeCell(): void {
+    this.store.removeCell(this.group().uuid);
+  }
 }

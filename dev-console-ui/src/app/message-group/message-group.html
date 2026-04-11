@@ -1,7 +1,14 @@
 <div class="clr-row">
   <div class="clr-col-12">
     <div class="card">
-      <div class="card-header">Cell #{{ oneBasedIndex() }}</div>
+      <div class="card-header">Cell #{{ oneBasedIndex() }}
+
+        <button class="remove-btn btn btn-sm btn-warning-outline" (click)="removeCell()">
+          <cds-icon shape="trash"></cds-icon>
+          Remove
+        </button>
+
+      </div>
       <div class="card-block">
         <clr-accordion [clrAccordionMultiPanel]="true">
           <clr-accordion-panel [clrAccordionPanelOpen]="true">

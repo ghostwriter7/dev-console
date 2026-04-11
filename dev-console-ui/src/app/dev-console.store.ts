@@ -48,6 +48,9 @@ export const DevConsoleStore = signalStore(
       insertMessage: (message: Pick<UiMessage, 'service' | 'script' | 'uuid'>): void =>
         patchState(store, ({ messages: [...store.messages(), message] })),
 
+      removeCell: (uuid: string): void =>
+        patchState(store, ({ messages: store.messages().filter((m) => m.uuid !== uuid) })),
+
       setAvailableServices: (services: string[]): void => patchState(store, { availableServices: services }),
 
       setActiveServiceForCell: (cellId: string, serviceName: string): void => {
