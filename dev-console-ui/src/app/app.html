@@ -1,14 +1,18 @@
 <clr-main-container>
   <app-nav/>
 
-  @if (hasNoAvailableServices()) {
-    <clr-alert [clrAlertType]="'warning'" [clrAlertClosable]="false">
-      <clr-alert-item>
-        <span class="alert-text">There are no connected services.</span>
-      </clr-alert-item>
-    </clr-alert>
-  } @else {
-    <app-message-group-list />
-  }
+  <main>
+
+    @if (hasNoAvailableServices()) {
+      <clr-alert [clrAlertType]="'warning'" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">There are no connected services.</span>
+        </clr-alert-item>
+      </clr-alert>
+    } @else {
+      <app-message-group-list />
+      <app-add-cell-button />
+    }
+  </main>
 
 </clr-main-container>

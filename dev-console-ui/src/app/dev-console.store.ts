@@ -1,6 +1,7 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { ErrorResult, SuccessResult } from './model/command-or-event.interface';
+import { v4 as uuid } from 'uuid';
 
 interface UiMessage {
   service: string;
@@ -29,6 +30,16 @@ export const DevConsoleStore = signalStore(
     })),
     withMethods((store) => ({
       activateCell: (cellId: string): void => patchState(store, { activeCell: cellId }),
+
+      addBlankCell: () => {
+        const availableServices = store.availableServices();
+        const message: UiMessage = {
+          service: availableServices[0],
+          script: '',
+          uuid: uuid(),
+        };
+        patchState(store, ({ messages: [...store.messages(), message] }));
+      },
 
       deactivateCell: (): void => patchState(store, { activeCell: null }),
 

@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
+import { AddCellButton } from './add-cell-button/add-cell-button';
 import { DevConsoleStore } from './dev-console.store';
 import { MediatorService } from './mediator/mediator.service';
 import { MessageGroupList } from './message-group-list/message-group-list';
@@ -23,7 +24,8 @@ import { WebSocketService } from './web-socket/web-socket.service';
     ClrCommonFormsModule,
     ClrAccordionModule,
     ClrAlertModule,
-    MessageGroupList
+    MessageGroupList,
+    AddCellButton
   ],
   styleUrl: './app.css'
 })
@@ -39,6 +41,4 @@ export class App implements OnInit {
     this.mediatorService.initialize();
     this.webSocketService.connect();
   }
-
-
 }
