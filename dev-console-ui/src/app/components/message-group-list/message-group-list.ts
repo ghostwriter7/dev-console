@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
-import { DevConsoleStore } from '../dev-console.store';
+import { DevConsoleStore } from '../../store/dev-console.store';
 import { MessageGroup } from '../message-group/message-group';
-import { UiMessageGroup } from '../model/ui-message-group.interface';
+import { UiMessageGroup } from '../../model/ui-message-group.interface';
 
 @Component({
   selector: 'app-message-group-list',

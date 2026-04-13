@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
+import { MESSAGE_RECEIVED } from '../../events';
+import { BaseCommandOrEvent } from '../../model/command-or-event.interface';
 import { EventService } from '../event-service/event.service';
-import { MESSAGE_RECEIVED } from '../events';
-import { BaseCommandOrEvent } from '../model/command-or-event.interface';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {

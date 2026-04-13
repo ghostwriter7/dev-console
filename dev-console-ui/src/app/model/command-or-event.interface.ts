@@ -32,10 +32,12 @@ export interface ExecuteScriptCommand extends BaseCommandOrEvent {
   script: string;
 }
 
+export type ScriptResult = SuccessResult | ErrorResult;
+
 export interface ScriptExecutedEvent extends BaseCommandOrEvent {
   type: typeof SCRIPT_EXECUTED_EVENT;
   uuid: string;
-  scriptResult: SuccessResult | ErrorResult;
+  scriptResult: ScriptResult;
 }
 
 export interface SuccessResult {

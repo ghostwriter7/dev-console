@@ -1,8 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { DevConsoleStore } from '../dev-console.store';
-import { EventService } from '../event-service/event.service';
-import { MESSAGE_RECEIVED } from '../events';
-import { CommandOrEvent, isCommandOrEvent } from '../model/command-or-event.interface';
+import { DevConsoleStore } from '../../store/dev-console.store';import { EventService } from '../event-service/event.service';
+import { MESSAGE_RECEIVED } from '../../events';
+import { CommandOrEvent, isCommandOrEvent } from '../../model/command-or-event.interface';
 import { v4 as uuid } from 'uuid';
 
 @Injectable({ providedIn: 'root' })

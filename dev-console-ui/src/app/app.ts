@@ -1,8 +1,8 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { AddCellButton } from './add-cell-button/add-cell-button';
-import { DevConsoleStore } from './dev-console.store';
-import { MediatorService } from './mediator/mediator.service';
-import { MessageGroupList } from './message-group-list/message-group-list';
+import { AddCellButton } from './components/add-cell-button/add-cell-button';
+import { DevConsoleStore } from './store/dev-console.store';
+import { MediatorService } from './services/mediator/mediator.service';
+import { MessageGroupList } from './components/message-group-list/message-group-list';
 import {
   ClrAccordionModule, ClrAlertModule,
   ClrComboboxModule,
@@ -10,8 +10,8 @@ import {
   ClrMainContainerModule,
   ClrNavigationModule
 } from '@clr/angular';
-import { Nav } from './nav/nav';
-import { WebSocketService } from './web-socket/web-socket.service';
+import { Nav } from './components/nav/nav';
+import { WebSocketService } from './services/web-socket/web-socket.service';
 
 @Component({
   selector: 'app-root',

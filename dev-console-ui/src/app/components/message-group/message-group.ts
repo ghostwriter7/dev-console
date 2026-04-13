@@ -1,12 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ClrAccordionModule, ClrIcon, ClrIfExpanded } from "@clr/angular";
-import { DevConsoleStore } from '../dev-console.store';
-import {ErrorRenderer} from "../error-renderer/error-renderer.component";
-import {MessageGroupActions} from "../message-group-actions/message-group-actions";
-import { ErrorResult, SuccessResult } from '../model/command-or-event.interface';
-import { UiMessageGroup } from '../model/ui-message-group.interface';
-import {OutputRenderer} from "../output-renderer/output-renderer";
-import {ScriptControl} from "../script-control/script-control.component";
+import { DevConsoleStore } from '../../store/dev-console.store';
+import { ErrorRenderer } from "../error-renderer/error-renderer.component";
+import { MessageGroupActions } from "../message-group-actions/message-group-actions";
+import { UiMessageGroup } from '../../model/ui-message-group.interface';
+import { OutputRenderer } from "../output-renderer/output-renderer";
+import { ScriptControl } from "../script-control/script-control.component";
 
 @Component({
   selector: 'app-message-group',

@@ -1,6 +1,6 @@
-import {Component, input} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {ClrAlertModule} from '@clr/angular';
+import { Component, input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ClrAlertModule } from '@clr/angular';
 
 @Component({
   selector: 'app-error-renderer',

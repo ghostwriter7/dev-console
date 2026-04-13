@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DevConsoleStore } from '../dev-console.store';
+import { DevConsoleStore } from '../../store/dev-console.store';
 
 @Component({
   selector: 'app-add-cell-button',

@@ -1,12 +1,12 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { ErrorResult, SuccessResult } from './model/command-or-event.interface';
+import { ErrorResult, ScriptResult, SuccessResult } from '../model/command-or-event.interface';
 import { v4 as uuid } from 'uuid';
 
 interface UiMessage {
   service: string;
   script: string;
-  result?: ErrorResult | SuccessResult;
+  result?: ScriptResult;
   uuid: string;
 }
 

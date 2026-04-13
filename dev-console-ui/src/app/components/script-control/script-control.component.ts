@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, input, OnDestroy, OnInit, viewChild } fr
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule } from '@clr/angular';
 import * as monaco from 'monaco-editor'
-import { DevConsoleStore } from '../dev-console.store';
+import { DevConsoleStore } from '../../store/dev-console.store';
 
 @Component({
   selector: 'app-script-control',
