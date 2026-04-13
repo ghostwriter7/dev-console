@@ -1,9 +1,5 @@
-import { ScriptResult } from './command-or-event.interface';
+import { UiMessage } from './ui-message.interface';
 
-export interface UiMessageGroup {
-  script: string;
-  result?: ScriptResult;
-  uuid: string;
-  service: string;
+export interface UiMessageGroup extends UiMessage {
   hasNoOutput: boolean;
 }

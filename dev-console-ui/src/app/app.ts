@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { AddCellButton } from './components/add-cell-button/add-cell-button';
+import { KeyboardManagerService } from './services/keyboard-manager/keyboard-manager.service';
 import { DevConsoleStore } from './store/dev-console.store';
 import { MediatorService } from './services/mediator/mediator.service';
 import { MessageGroupList } from './components/message-group-list/message-group-list';
@@ -36,9 +37,11 @@ export class App implements OnInit {
 
   private readonly webSocketService = inject(WebSocketService);
   private readonly mediatorService = inject(MediatorService);
+  private readonly keyboardManagerService = inject(KeyboardManagerService);
 
   public ngOnInit(): void {
     this.mediatorService.initialize();
     this.webSocketService.connect();
+    this.keyboardManagerService.initialize();
   }
 }

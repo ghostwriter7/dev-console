@@ -30,6 +30,7 @@ export class ScriptExecutorService {
 
     if (!message) return;
 
+    this.store.setCellStatus(uuid, 'running');
     const { service, script } = message;
     const command: ExecuteScriptCommand = {
       type: 'executeScriptCommand',
@@ -43,9 +44,7 @@ export class ScriptExecutorService {
 
   public handleScriptExecutedEvent(event: ScriptExecutedEvent): void {
     const scriptResult = event.scriptResult;
-
-    if (!scriptResult) return;
-
+    this.store.setCellStatus(event.uuid, 'idle');
     this.store.updateResult(event.uuid, scriptResult);
   }
 }

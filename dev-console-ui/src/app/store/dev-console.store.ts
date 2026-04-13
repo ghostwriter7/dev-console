@@ -2,13 +2,7 @@ import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { ErrorResult, ScriptResult, SuccessResult } from '../model/command-or-event.interface';
 import { v4 as uuid } from 'uuid';
-
-interface UiMessage {
-  service: string;
-  script: string;
-  result?: ScriptResult;
-  uuid: string;
-}
+import { UiMessage } from '../model/ui-message.interface';
 
 type DevConsoleStore = {
   activeCell: string | null;
@@ -23,70 +17,90 @@ const initialState: DevConsoleStore = {
 };
 
 export const DevConsoleStore = signalStore(
-  { providedIn: 'root'},
-    withState(initialState),
-    withComputed((store) => ({
-      hasAnyMessages: computed(() => store.messages().length > 0)
-    })),
-    withMethods((store) => ({
-      activateCell: (cellId: string): void => patchState(store, { activeCell: cellId }),
+  { providedIn: 'root' },
+  withState(initialState),
+  withComputed((store) => ({
+    hasAnyMessages: computed(() => store.messages().length > 0)
+  })),
+  withMethods((store) => {
+      const getCellIndex = (uuid: string): number => store.messages().findIndex((m) => m.uuid === uuid);
 
-      addBlankCell: () => {
-        const availableServices = store.availableServices();
-        const message: UiMessage = {
-          service: availableServices[0],
-          script: '',
-          uuid: uuid(),
-        };
-        patchState(store, ({ messages: [...store.messages(), message] }));
-      },
 
-      deactivateCell: (): void => patchState(store, { activeCell: null }),
+      return {
+        activateCell: (cellId: string): void => patchState(store, { activeCell: cellId }),
 
-      getMessageByUuid: (uuid: string): UiMessage | undefined => store.messages().find((m) => m.uuid === uuid),
+        addBlankCell: () => {
+          const availableServices = store.availableServices();
+          const message: UiMessage = {
+            service: availableServices[0],
+            status: 'idle',
+            script: '',
+            uuid: uuid(),
+          };
+          patchState(store, ({ messages: [...store.messages(), message] }));
+        },
 
-      insertMessage: (message: Pick<UiMessage, 'service' | 'script' | 'uuid'>): void =>
-        patchState(store, ({ messages: [...store.messages(), message] })),
+        deactivateCell: (): void => patchState(store, { activeCell: null }),
 
-      removeCell: (uuid: string): void =>
-        patchState(store, ({ messages: store.messages().filter((m) => m.uuid !== uuid) })),
+        getMessageByUuid: (uuid: string): UiMessage | undefined => store.messages().find((m) => m.uuid === uuid),
 
-      setAvailableServices: (services: string[]): void => patchState(store, { availableServices: services }),
+        insertMessage: (message: Omit<UiMessage, 'result'>): void =>
+          patchState(store, ({ messages: [...store.messages(), message] })),
 
-      setActiveServiceForCell: (cellId: string, serviceName: string): void => {
-        const cellIndex = store.messages().findIndex((m) => m.uuid === cellId);
+        removeCell: (uuid: string): void =>
+          patchState(store, ({ messages: store.messages().filter((m) => m.uuid !== uuid) })),
 
-        if (cellIndex === -1) return;
-        const messages = store.messages();
-        patchState(store, ({
-          messages: messages.with(cellIndex, {
-            ...messages[cellIndex],
-            service: serviceName,
-          })
-        }));
-      },
+        setAvailableServices: (services: string[]): void => patchState(store, { availableServices: services }),
 
-      updateScript: (script: string): void => {
-        const activeCellUuid = store.activeCell();
+        setActiveServiceForCell: (uuid: string, serviceName: string): void => {
+          const cellIndex = getCellIndex(uuid);
 
-        if (!activeCellUuid) return;
+          if (cellIndex === -1) return;
+          const messages = store.messages();
+          patchState(store, ({
+            messages: messages.with(cellIndex, {
+              ...messages[cellIndex],
+              service: serviceName,
+            })
+          }));
+        },
 
-        const messages = store.messages();
-        const activeCellIndex = messages.findIndex((m) => m.uuid === activeCellUuid);
-        const activeCell = messages[activeCellIndex];
+        setCellStatus: (uuid: string, status: UiMessage['status']): void => {
+          const cellIndex = getCellIndex(uuid);
 
-        patchState(store, ({ messages: messages.with(activeCellIndex, { ...activeCell, script }) }));
-      },
+          if (cellIndex === -1) return;
 
-      updateResult: (uuid: string, result: ErrorResult | SuccessResult): void => {
-        const cellIndex = store.messages().findIndex((m) => m.uuid === uuid);
+          const messages = store.messages();
+          patchState(store, ({
+            messages: messages.with(cellIndex, {
+              ...messages[cellIndex],
+              status,
+            })
+          }));
+        },
 
-        if (cellIndex === -1) return;
+        updateScript: (script: string): void => {
+          const activeCellUuid = store.activeCell();
 
-        const messages = store.messages();
-        patchState(store, ({ messages: messages.with(cellIndex, { ...messages[cellIndex], result }) }));
+          if (!activeCellUuid) return;
+
+          const messages = store.messages();
+          const activeCellIndex = messages.findIndex((m) => m.uuid === activeCellUuid);
+          const activeCell = messages[activeCellIndex];
+
+          patchState(store, ({ messages: messages.with(activeCellIndex, { ...activeCell, script }) }));
+        },
+
+        updateResult: (uuid: string, result: ErrorResult | SuccessResult): void => {
+          const cellIndex = getCellIndex(uuid);
+
+          if (cellIndex === -1) return;
+
+          const messages = store.messages();
+          patchState(store, ({ messages: messages.with(cellIndex, { ...messages[cellIndex], result }) }));
+        }
       }
-    }))
+    }
   )
-;
+);
 

@@ -34,7 +34,9 @@ export class ScriptControl implements OnInit, OnDestroy {
     });
 
     this.disposables.push(
-      this.editor.onDidBlurEditorWidget(() => this.store.deactivateCell()),
+      this.editor.onDidBlurEditorWidget(() => {
+        if (this.store.activeCell() === this.uuid()) this.store.deactivateCell();
+      }),
       this.editor.onDidFocusEditorWidget(() => this.store.activateCell(this.uuid()))
     );
 

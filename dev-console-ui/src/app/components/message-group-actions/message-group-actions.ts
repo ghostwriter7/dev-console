@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule, ClrCommonFormsModule } from '@clr/angular';
@@ -29,6 +29,7 @@ export class MessageGroupActions implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly scriptExecutorService = inject(ScriptExecutorService);
+  protected readonly isCellRunning = computed(() => this.group().status === 'running');
 
   public ngOnInit(): void {
     this.serviceControl = this.formBuilder.control(this.group().service);

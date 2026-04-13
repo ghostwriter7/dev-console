@@ -2,9 +2,11 @@
   <div class="clr-col-12">
     <div class="card">
       <div class="card-header">Cell #{{ oneBasedIndex() }}
-
+        @if (isActive()) {
+          <cds-icon shape="asterisk" status="success"/>
+        }
         <button class="remove-btn btn btn-sm btn-warning-outline" (click)="removeCell()">
-          <cds-icon shape="trash"></cds-icon>
+          <cds-icon shape="trash" />
           Remove
         </button>
 

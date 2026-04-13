@@ -1,5 +1,5 @@
 <div class="card-footer">
-  <button class="btn btn-sm" (click)="runScript()">Run</button>
+  <button class="btn btn-sm" [disabled]="isCellRunning()" (click)="runScript()">Run</button>
 
   <clr-combobox-container>
     <label>Service</label>

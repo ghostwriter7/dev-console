@@ -30,6 +30,7 @@ export class MediatorService {
         if (!this.store.hasAnyMessages()) {
           this.store.insertMessage({
             service: services[0],
+            status: 'idle',
             script: '',
             uuid: uuid(),
           });

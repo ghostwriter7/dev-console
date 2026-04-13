@@ -26,6 +26,7 @@ export class MessageGroup {
   public group = input.required<UiMessageGroup>();
 
   protected readonly oneBasedIndex = computed(() => this.index() + 1);
+  protected readonly isActive = computed(() => this.store.activeCell() === this.group().uuid);
   private readonly store = inject(DevConsoleStore);
 
   protected removeCell(): void {
