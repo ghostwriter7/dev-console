@@ -2,6 +2,9 @@
 spring:
   application:
     name: demo
+  groovy:
+    template:
+      check-template-location: false
 dev:
   console:
     enabled: true

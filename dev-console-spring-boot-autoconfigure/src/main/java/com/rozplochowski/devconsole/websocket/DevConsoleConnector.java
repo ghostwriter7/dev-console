@@ -45,7 +45,7 @@ public class DevConsoleConnector {
         log.info("Attempting to connect to DevConsole WebSocket (attempt {}/{})", attempt, maxAttempts);
 
         return connectOnce()
-                .exceptionallyCompose((throwable) -> {
+                .exceptionallyCompose(throwable -> {
                     if (attempt >= maxAttempts) {
                         return CompletableFuture.failedFuture(throwable);
                     }

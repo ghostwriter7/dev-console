@@ -62,6 +62,7 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
     private void handleServiceRegistration(String serviceName, @NonNull WebSocketSession session) throws IOException {
         log.info("Received ServerConnectCommand from {}", serviceName);
         sessionByServerName.put(serviceName, session);
+        session.getAttributes().put("serviceName", serviceName);
 
         var payload = new CommandOrEvent.ServerConnectedEvent(serviceName);
         var message = mapper.writeValueAsString(payload);
@@ -82,7 +83,13 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus closeStatus) throws Exception {
         log.info("DevConsole WebSocket connection closed with ID: {}", session.getId());
-//        sessions.remove(session.getId());
+        var serviceName = (String) session.getAttributes().get("serviceName");
+
+        if (serviceName != null) {
+            sessionByServerName.remove(serviceName);
+            notifyClientAboutAvailableServices();
+        }
+
     }
 
     @Override

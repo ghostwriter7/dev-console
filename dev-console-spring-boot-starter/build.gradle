@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     api project(':dev-console-spring-boot-autoconfigure')
+    implementation project(':dev-console-common')
 }
 
 jar {

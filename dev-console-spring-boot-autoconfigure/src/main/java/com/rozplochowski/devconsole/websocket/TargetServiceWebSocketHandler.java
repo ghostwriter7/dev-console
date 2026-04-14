@@ -32,9 +32,6 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
     private final Environment environment;
     private final ObjectMapper mapper;
 
-    @Value("${spring.application.name:UnknownAppName}")
-    private final String appName;
-
     private static final String CTX = "ctx";
     private static final String ENV = "env";
     private static final String SESSION = "session";
@@ -69,6 +66,7 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
         var shell = new GroovyShell(getClass().getClassLoader(), binding, compilerConfig);
         session.getAttributes().put(SHELL, shell);
 
+        var appName = getAppName();
         log.info("Sending initial WebSocket message for app: {}", appName);
         var payload = new CommandOrEvent.ServerConnectCommand(appName);
         var message = mapper.writeValueAsString(payload);
@@ -157,5 +155,11 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
         } catch (IOException ex) {
             log.error("Failed to send message to WebSocket session: {}", session.getId(), ex);
         }
+    }
+
+    private String getAppName() {
+        var applicationName = context.getApplicationName();
+        if (!applicationName.isBlank()) return applicationName;
+        return context.getId();
     }
 }

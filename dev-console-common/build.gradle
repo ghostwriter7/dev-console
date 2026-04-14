@@ -1,7 +1,19 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 
 dependencies {
+    api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'dev-console-common'
+        }
+    }
 }
