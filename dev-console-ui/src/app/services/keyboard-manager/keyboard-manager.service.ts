@@ -1,6 +1,6 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { DevConsoleStore } from '../../store/dev-console.store';
-import { ScriptExecutorService } from '../script-executor/script-executor.service';
+import { ScriptExecutorService } from '../handlers/script-executor/script-executor.service';
 
 @Injectable({ providedIn: 'root' })
 export class KeyboardManagerService {

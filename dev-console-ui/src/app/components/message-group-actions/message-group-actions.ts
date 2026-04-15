@@ -1,10 +1,10 @@
-import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule, ClrCommonFormsModule } from '@clr/angular';
 import { DevConsoleStore } from '../../store/dev-console.store';
 import { UiMessageGroup } from '../../model/ui-message-group.interface';
-import { ScriptExecutorService } from '../../services/script-executor/script-executor.service';
+import { ScriptExecutorService } from '../../services/handlers/script-executor/script-executor.service';
 
 @Component({
   selector: 'app-message-group-actions',

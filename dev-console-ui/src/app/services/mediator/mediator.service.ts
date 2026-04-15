@@ -1,14 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { DevConsoleStore } from '../../store/dev-console.store';import { EventService } from '../event-service/event.service';
+import { EventService } from '../event-service/event.service';
 import { MESSAGE_RECEIVED } from '../../events';
 import { CommandOrEvent, isCommandOrEvent } from '../../model/command-or-event.interface';
-import { v4 as uuid } from 'uuid';
+import { Handler } from '../handlers/handler.interface';
+import { COMMAND_OR_EVENT_HANDLER } from '../handlers/handler.token';
 
 @Injectable({ providedIn: 'root' })
 export class MediatorService {
 
-  private readonly store = inject(DevConsoleStore);
   private readonly eventService = inject(EventService);
+  private readonly handlers: Handler<CommandOrEvent>[] = inject(COMMAND_OR_EVENT_HANDLER);
 
   public initialize(): void {
     this.eventService.getStream$(MESSAGE_RECEIVED)
@@ -20,23 +21,10 @@ export class MediatorService {
 
     if (!commandOrEvent) return;
 
-    this.eventService.emit(commandOrEvent.type, commandOrEvent);
+    const handler = this.handlers.find((handler) => handler.canHandle(commandOrEvent));
 
-    switch (commandOrEvent.type) {
-      case 'availableServicesChangedEvent': {
-        const { services } = commandOrEvent;
-        this.store.setAvailableServices(services);
-
-        if (!this.store.hasAnyMessages()) {
-          this.store.insertMessage({
-            service: services[0],
-            status: 'idle',
-            script: '',
-            uuid: uuid(),
-          });
-        }
-        break;
-      }
+    if (handler) {
+      handler.handle(commandOrEvent);
     }
   }
 
