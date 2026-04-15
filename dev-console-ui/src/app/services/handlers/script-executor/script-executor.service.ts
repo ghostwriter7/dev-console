@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { DevConsoleStore } from '../../../store/dev-console.store';
-import { SCRIPT_EXECUTED_EVENT } from '../../../events';
+import { SCRIPT_EXECUTED_EVENT } from '../../../model/events';
 import {
-  CommandOrEvent,
+  CommandOrEventName,
   ExecuteScriptCommand,
   ScriptExecutedEvent,
 } from '../../../model/command-or-event.interface';
@@ -32,8 +32,8 @@ export class ScriptExecutorService implements Handler<ScriptExecutedEvent>{
     this.webSocketService.send(command);
   }
 
-  public canHandle(commandOrEvent: CommandOrEvent): boolean {
-    return commandOrEvent.type === SCRIPT_EXECUTED_EVENT;
+  public canHandle(): CommandOrEventName {
+    return SCRIPT_EXECUTED_EVENT;
   }
 
   public handle(event: ScriptExecutedEvent): void {

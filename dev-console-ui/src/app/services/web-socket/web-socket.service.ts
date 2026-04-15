@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { MESSAGE_RECEIVED } from '../../events';
+import { MESSAGE_RECEIVED } from '../../model/events';
 import { BaseCommandOrEvent } from '../../model/command-or-event.interface';
 import { EventService } from '../event-service/event.service';
 

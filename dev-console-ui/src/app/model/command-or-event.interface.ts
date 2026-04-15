@@ -1,10 +1,10 @@
 import {
-  CLIENT_CONNECT_COMMAND,
+  CLIENT_CONNECT_COMMAND, Commands,
   EXECUTE_SCRIPT_COMMAND,
   INSTALL_TYPE_METADATA_COMMAND,
   SERVER_CONNECT_COMMAND
-} from '../commands';
-import { AVAILABLE_SERVICES_CHANGED_EVENT, SCRIPT_EXECUTED_EVENT, SERVER_CONNECTED_EVENT } from '../events';
+} from './commands';
+import { AVAILABLE_SERVICES_CHANGED_EVENT, Events, SCRIPT_EXECUTED_EVENT, SERVER_CONNECTED_EVENT } from './events';
 import { TypeMetadata } from './type-metadata.interface';
 
 export type CommandOrEvent =
@@ -20,7 +20,7 @@ export const isCommandOrEvent = (input: unknown): input is CommandOrEvent =>
   typeof input === 'object' && input !== null && 'type' in input;
 
 export interface BaseCommandOrEvent {
-  type: string;
+  type: CommandOrEventName;
 }
 
 export interface ServerConnectCommand extends BaseCommandOrEvent {
@@ -72,3 +72,5 @@ export interface InstallTypeMetadataCommand extends BaseCommandOrEvent {
   serviceName: string;
   typeMetadata: Map<string, Map<string, TypeMetadata>>
 }
+
+export type CommandOrEventName = Commands | Events;

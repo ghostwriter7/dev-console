@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { v4 as uuid } from 'uuid';
-import { AVAILABLE_SERVICES_CHANGED_EVENT } from '../../../events';
-import { AvailableServicesChangedEvent, CommandOrEvent } from '../../../model/command-or-event.interface';
-import { DevConsoleStore } from '../../../store/dev-console.store';
-import { Handler } from '../handler.interface';
+import { AVAILABLE_SERVICES_CHANGED_EVENT } from '../../../../model/events';
+import { AvailableServicesChangedEvent, CommandOrEventName } from '../../../../model/command-or-event.interface';
+import { DevConsoleStore } from '../../../../store/dev-console.store';
+import { Handler } from '../../handler.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AvailableServicesChangedEventHandler implements Handler<AvailableServicesChangedEvent> {
@@ -23,7 +23,7 @@ export class AvailableServicesChangedEventHandler implements Handler<AvailableSe
     }
   }
 
-  public canHandle(commandOrEvent: CommandOrEvent): boolean {
-    return commandOrEvent.type === AVAILABLE_SERVICES_CHANGED_EVENT;
+  public canHandle(): CommandOrEventName {
+    return AVAILABLE_SERVICES_CHANGED_EVENT;
   }
 }
