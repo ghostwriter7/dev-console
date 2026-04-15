@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.ScriptResult;
+import com.rozplochowski.devconsole.TypeMetadata;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import lombok.NonNull;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -20,6 +20,7 @@ import org.springframework.web.socket.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,9 +55,22 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
         importCustomizer.addImports("groovy.json.JsonOutput");
         importCustomizer.addStarImports("java.util", "java.time");
 
+        Map<String, TypeMetadata> typeMetadataMap = new HashMap<>();
         for (var name : context.getBeanDefinitionNames()) {
             if (!name.contains("springframework") && !name.contains("jpa") && !name.endsWith("Controller")) {
-                vars.put(name, context.getBean(name));
+                var bean = context.getBean(name);
+                var clazz = bean.getClass();
+
+                var publicMethods = Arrays.stream(bean.getClass().getMethods())
+                        .filter(m -> !m.isBridge() && !m.isSynthetic())
+                        .map(m -> new TypeMetadata.MethodMetadata(m.getName(), m.getReturnType().getSimpleName(),
+                                Arrays.stream(m.getParameterTypes()).map(Class::getSimpleName).toList()))
+                        .toList();
+
+                var typeMetadata = new TypeMetadata(clazz.getSimpleName(), publicMethods);
+                typeMetadataMap.put(clazz.getSimpleName(), typeMetadata);
+
+                vars.put(name, bean);
             }
         }
 
@@ -68,7 +82,7 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
 
         var appName = getAppName();
         log.info("Sending initial WebSocket message for app: {}", appName);
-        var payload = new CommandOrEvent.ServerConnectCommand(appName);
+        var payload = new CommandOrEvent.ServerConnectCommand(appName, typeMetadataMap);
         var message = mapper.writeValueAsString(payload);
 
         session.sendMessage(new TextMessage(message));
@@ -123,8 +137,8 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-
+    public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) throws Exception {
+        log.info("DevConsole WebSocket transport error.");
     }
 
     @Override

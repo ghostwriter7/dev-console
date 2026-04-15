@@ -2,6 +2,7 @@ package com.rozplochowski.devconsole.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.TypeMetadata;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DevConsoleMessageHandler implements WebSocketHandler {
     private final Map<String, WebSocketSession> sessionByServerName = new HashMap<>();
+    private final Map<String, Map<String, TypeMetadata>> typeMetadataByServiceName = new HashMap<>();
     private WebSocketSession client;
     private final ObjectMapper mapper;
 
@@ -33,12 +35,18 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
 
         CommandOrEvent msg = mapper.readValue(payload.toString(), CommandOrEvent.class);
 
-        if (msg instanceof CommandOrEvent.ServerConnectCommand(String serviceName)) {
+        if (msg instanceof CommandOrEvent.ServerConnectCommand(String serviceName, Map<String, TypeMetadata> typeMetadata)) {
             handleServiceRegistration(serviceName, session);
+            handleTypeMetadata(serviceName, typeMetadata);
         } else if (msg instanceof CommandOrEvent.ClientConnectCommand) {
             log.info("Received ClientConnectCommand from {}. UI connected.", session.getId());
             client = session;
             notifyClientAboutAvailableServices();
+            if (!typeMetadataByServiceName.isEmpty()) {
+                typeMetadataByServiceName.forEach((serviceName, metadata) -> {
+                    send(client, new CommandOrEvent.InstallTypeMetadataCommand(serviceName, metadata));
+                });
+            }
         } else if (msg instanceof CommandOrEvent.ExecuteScriptCommand executeScriptCommand) {
             var targetSession = sessionByServerName.get(executeScriptCommand.targetServiceName());
             if (targetSession != null) {
@@ -51,6 +59,14 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
             client.sendMessage(message);
         }
 
+    }
+
+    private void handleTypeMetadata(String serviceName, Map<String, TypeMetadata> typeMetadata) {
+        typeMetadataByServiceName.put(serviceName, typeMetadata);
+        if (client != null) {
+            var payload = new CommandOrEvent.InstallTypeMetadataCommand(serviceName, typeMetadata);
+            send(client, payload);
+        }
     }
 
     private void notifyClientAboutAvailableServices() {
