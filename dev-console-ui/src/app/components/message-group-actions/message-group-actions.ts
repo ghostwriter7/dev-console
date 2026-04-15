@@ -2,9 +2,10 @@ import { Component, computed, DestroyRef, inject, input, OnInit } from '@angular
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule, ClrCommonFormsModule } from '@clr/angular';
+import { EXECUTE_SCRIPT_COMMAND } from '../../model/commands';
+import { EventService } from '../../services/event-service/event.service';
 import { DevConsoleStore } from '../../store/dev-console.store';
 import { UiMessageGroup } from '../../model/ui-message-group.interface';
-import { ScriptExecutorService } from '../../services/handlers/script-executor/script-executor.service';
 
 @Component({
   selector: 'app-message-group-actions',
@@ -28,7 +29,7 @@ export class MessageGroupActions implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  private readonly scriptExecutorService = inject(ScriptExecutorService);
+  private readonly eventService = inject(EventService);
   protected readonly isCellRunning = computed(() => this.group().status === 'running');
 
   public ngOnInit(): void {
@@ -40,6 +41,12 @@ export class MessageGroupActions implements OnInit {
   }
 
   protected runScript(): void {
-    this.scriptExecutorService.executeScript(this.group().uuid);
+    const { uuid, service, script } = this.group();
+    this.eventService.emit(EXECUTE_SCRIPT_COMMAND, {
+      type: EXECUTE_SCRIPT_COMMAND,
+      uuid,
+      targetServiceName: service,
+      script
+    })
   }
 }

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { MESSAGE_RECEIVED } from '../../model/events';
+import { MESSAGE_RECEIVED_EVENT } from '../../model/events';
 import { BaseCommandOrEvent } from '../../model/command-or-event.interface';
 import { EventService } from '../event-service/event.service';
 
@@ -12,7 +12,9 @@ export class WebSocketService {
     this.ws = new WebSocket('ws://localhost:8080/v1/dev/console/ws');
 
     this.ws.addEventListener('message', (event: MessageEvent<string>) => {
-      this.eventService.emit(MESSAGE_RECEIVED, event.data);
+      this.eventService.emit(MESSAGE_RECEIVED_EVENT, {
+        type: MESSAGE_RECEIVED_EVENT, message: event.data
+      });
     });
 
     this.ws.addEventListener('open', (event) => {

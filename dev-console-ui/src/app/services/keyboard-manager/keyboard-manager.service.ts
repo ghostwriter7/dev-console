@@ -1,12 +1,13 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
+import { EXECUTE_SCRIPT_COMMAND } from '../../model/commands';
 import { DevConsoleStore } from '../../store/dev-console.store';
-import { ScriptExecutorService } from '../handlers/script-executor/script-executor.service';
+import { EventService } from '../event-service/event.service';
 
 @Injectable({ providedIn: 'root' })
 export class KeyboardManagerService {
   private readonly document = inject(DOCUMENT);
   private readonly store = inject(DevConsoleStore);
-  private readonly scriptExecutor = inject(ScriptExecutorService);
+  private readonly eventService = inject(EventService);
 
   public initialize(): void {
     this.document.addEventListener('keydown', (event) => {
@@ -14,7 +15,13 @@ export class KeyboardManagerService {
         const activeCell = this.store.activeCell();
 
         if (activeCell) {
-          this.scriptExecutor.executeScript(activeCell);
+          const { uuid, service, script } = this.store.getMessageByUuid(activeCell)!;
+          this.eventService.emit(EXECUTE_SCRIPT_COMMAND, {
+            type: EXECUTE_SCRIPT_COMMAND,
+            uuid,
+            targetServiceName: service,
+            script
+          })
         }
       }
     });

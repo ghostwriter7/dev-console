@@ -1,23 +1,17 @@
 import { Injectable } from '@angular/core';
-import { filter, map, Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
+import { CommandOrEvent, CommandOrEventName } from '../../model/command-or-event.interface';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
 
   private readonly eventSubject = new Subject<{
-    type: string;
-    payload: unknown
+    type: CommandOrEventName;
+    payload: CommandOrEvent
   }>();
+  public readonly events$ = this.eventSubject.asObservable();
 
-  public emit(type: string, payload: unknown): void {
+  public emit(type: CommandOrEventName, payload: CommandOrEvent): void {
     this.eventSubject.next({ type, payload });
   }
-
-  public getStream$(type: string): Observable<unknown> {
-    return this.eventSubject.pipe(
-      filter((event) => event.type === type),
-      map(({ payload }) => payload)
-    );
-  }
-
 }

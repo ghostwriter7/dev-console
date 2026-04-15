@@ -4,7 +4,13 @@ import {
   INSTALL_TYPE_METADATA_COMMAND,
   SERVER_CONNECT_COMMAND
 } from './commands';
-import { AVAILABLE_SERVICES_CHANGED_EVENT, Events, SCRIPT_EXECUTED_EVENT, SERVER_CONNECTED_EVENT } from './events';
+import {
+  AVAILABLE_SERVICES_CHANGED_EVENT,
+  Events,
+  MESSAGE_RECEIVED_EVENT,
+  SCRIPT_EXECUTED_EVENT,
+  SERVER_CONNECTED_EVENT
+} from './events';
 import { TypeMetadata } from './type-metadata.interface';
 
 export type CommandOrEvent =
@@ -13,6 +19,7 @@ export type CommandOrEvent =
   | ExecuteScriptCommand
   | ScriptExecutedEvent
   | ServerConnectedEvent
+  | MessageReceivedEvent
   | AvailableServicesChangedEvent
   | InstallTypeMetadataCommand;
 
@@ -71,6 +78,11 @@ export interface InstallTypeMetadataCommand extends BaseCommandOrEvent {
   type: typeof INSTALL_TYPE_METADATA_COMMAND,
   serviceName: string;
   typeMetadata: Map<string, Map<string, TypeMetadata>>
+}
+
+export interface MessageReceivedEvent extends BaseCommandOrEvent {
+  type: typeof MESSAGE_RECEIVED_EVENT;
+  message: string;
 }
 
 export type CommandOrEventName = Commands | Events;

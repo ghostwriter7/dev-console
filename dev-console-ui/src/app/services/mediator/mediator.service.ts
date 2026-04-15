@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { EventService } from '../event-service/event.service';
-import { MESSAGE_RECEIVED } from '../../model/events';
 import { CommandOrEvent, CommandOrEventName, isCommandOrEvent } from '../../model/command-or-event.interface';
 import { Handler } from '../handlers/handler.interface';
 import { COMMAND_OR_EVENT_HANDLER } from '../handlers/handler.token';
@@ -14,8 +13,14 @@ export class MediatorService {
 
 
   public initialize(): void {
-    this.eventService.getStream$(MESSAGE_RECEIVED)
-      .subscribe((payload) => this.handle(payload));
+    this.eventService.events$
+      .subscribe(({ payload }) => {
+        if (this.handlers.has(payload.type)) {
+          this.handlers.get(payload.type)?.handle(payload);
+        } else {
+          this.handle(payload);
+        }
+      })
   }
 
   private handle(payload: unknown): void {

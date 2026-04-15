@@ -4,12 +4,15 @@ import { asteriskIcon, ClarityIcons, ClarityModule, codeIcon, cogIcon, trashIcon
 
 import { routes } from './app.routes';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  ExecuteScriptCommandHandler
+} from './services/handlers/commands/execute-script/execute-script-command.handler';
 import { AvailableServicesChangedEventHandler } from './services/handlers/events/available-services-changed/available-services-changed-event.handler';
 import {
   InstallTypeMetadataCommandHandler
 } from './services/handlers/commands/install-type-metadata/install-type-metadata-command.handler';
 import { COMMAND_OR_EVENT_HANDLER } from './services/handlers/handler.token';
-import { ScriptExecutorService } from './services/handlers/script-executor/script-executor.service';
+import { ScriptExecutedEventHandler } from './services/handlers/events/script-executed/script-executed-event.handler';
 
 ClarityIcons.addIcons(codeIcon, cogIcon, trashIcon, asteriskIcon);
 
@@ -19,7 +22,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     { provide: COMMAND_OR_EVENT_HANDLER, useExisting: AvailableServicesChangedEventHandler, multi: true },
-    { provide: COMMAND_OR_EVENT_HANDLER, useExisting: ScriptExecutorService, multi: true },
-    { provide: COMMAND_OR_EVENT_HANDLER, useExisting: InstallTypeMetadataCommandHandler, multi: true }
+    { provide: COMMAND_OR_EVENT_HANDLER, useExisting: ScriptExecutedEventHandler, multi: true },
+    { provide: COMMAND_OR_EVENT_HANDLER, useExisting: InstallTypeMetadataCommandHandler, multi: true },
+    { provide: COMMAND_OR_EVENT_HANDLER, useExisting: ExecuteScriptCommandHandler, multi: true }
   ]
 };
