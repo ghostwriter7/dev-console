@@ -18,6 +18,11 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'io.spring.dependency-management'
 
+    dependencies {
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+    }
+
     dependencyManagement {
         imports {
             mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.0"
