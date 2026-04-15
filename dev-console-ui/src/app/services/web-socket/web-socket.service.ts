@@ -12,9 +12,7 @@ export class WebSocketService {
     this.ws = new WebSocket('ws://localhost:8080/v1/dev/console/ws');
 
     this.ws.addEventListener('message', (event: MessageEvent<string>) => {
-      this.eventService.emit(MESSAGE_RECEIVED_EVENT, {
-        type: MESSAGE_RECEIVED_EVENT, message: event.data
-      });
+      this.eventService.emit(MESSAGE_RECEIVED_EVENT, event.data);
     });
 
     this.ws.addEventListener('open', (event) => {

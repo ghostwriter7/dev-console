@@ -14,9 +14,9 @@ export class MediatorService {
 
   public initialize(): void {
     this.eventService.events$
-      .subscribe(({ payload }) => {
-        if (this.handlers.has(payload.type)) {
-          this.handlers.get(payload.type)?.handle(payload);
+      .subscribe(({ type, payload }) => {
+        if (this.handlers.has(type) && isCommandOrEvent(payload)) {
+          this.handlers.get(type)?.handle(payload);
         } else {
           this.handle(payload);
         }

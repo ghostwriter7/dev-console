@@ -7,11 +7,11 @@ export class EventService {
 
   private readonly eventSubject = new Subject<{
     type: CommandOrEventName;
-    payload: CommandOrEvent
+    payload: CommandOrEvent | string;
   }>();
   public readonly events$ = this.eventSubject.asObservable();
 
-  public emit(type: CommandOrEventName, payload: CommandOrEvent): void {
+  public emit(type: CommandOrEventName, payload: CommandOrEvent | string): void {
     this.eventSubject.next({ type, payload });
   }
 }
