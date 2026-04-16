@@ -1,25 +1,38 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { ErrorResult, ScriptResult, SuccessResult } from '../model/command-or-event.interface';
+import { ErrorResult, SuccessResult } from '../model/command-or-event.interface';
 import { v4 as uuid } from 'uuid';
+import { TypeMetadata } from '../model/type-metadata.interface';
 import { UiMessage } from '../model/ui-message.interface';
 
 type DevConsoleStore = {
   activeCell: string | null;
   availableServices: string[];
   messages: UiMessage[];
+  typeMetadataByService: Record<string, Record<string, TypeMetadata>>;
 }
 
 const initialState: DevConsoleStore = {
   activeCell: null,
   availableServices: [],
   messages: [],
+  typeMetadataByService: {},
 };
 
 export const DevConsoleStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+  withMethods((store) => ({
+    getMessageByUuid: (uuid: string): UiMessage | undefined => store.messages().find((m) => m.uuid === uuid),
+  })),
   withComputed((store) => ({
+    typeMetadata: computed(() => {
+      const activeCell = store.activeCell();
+      if (!activeCell) return {};
+
+      const activeService = store.getMessageByUuid(activeCell)?.service;
+      return activeService ? store.typeMetadataByService()[activeService] : {};
+    }),
     hasAnyMessages: computed(() => store.messages().length > 0)
   })),
   withMethods((store) => {
@@ -41,8 +54,6 @@ export const DevConsoleStore = signalStore(
         },
 
         deactivateCell: (): void => patchState(store, { activeCell: null }),
-
-        getMessageByUuid: (uuid: string): UiMessage | undefined => store.messages().find((m) => m.uuid === uuid),
 
         insertMessage: (message: Omit<UiMessage, 'result'>): void =>
           patchState(store, ({ messages: [...store.messages(), message] })),
@@ -77,6 +88,10 @@ export const DevConsoleStore = signalStore(
               status,
             })
           }));
+        },
+
+        setTypeMetadata: (serviceName: string, typeMetadata: Record<string, TypeMetadata>): void => {
+          patchState(store, ({ typeMetadataByService: { ...store.typeMetadataByService(), [serviceName]: typeMetadata } }));
         },
 
         updateScript: (script: string): void => {

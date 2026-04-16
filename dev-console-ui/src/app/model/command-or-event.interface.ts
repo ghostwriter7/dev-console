@@ -77,7 +77,7 @@ export interface AvailableServicesChangedEvent extends BaseCommandOrEvent {
 export interface InstallTypeMetadataCommand extends BaseCommandOrEvent {
   type: typeof INSTALL_TYPE_METADATA_COMMAND,
   serviceName: string;
-  typeMetadata: Map<string, Map<string, TypeMetadata>>
+  typeMetadata: Record<string, TypeMetadata>;
 }
 
 export interface MessageReceivedEvent extends BaseCommandOrEvent {

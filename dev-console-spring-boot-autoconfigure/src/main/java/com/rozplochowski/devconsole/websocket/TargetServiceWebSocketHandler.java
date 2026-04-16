@@ -68,7 +68,7 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
                         .toList();
 
                 var typeMetadata = new TypeMetadata(clazz.getSimpleName(), publicMethods);
-                typeMetadataMap.put(clazz.getSimpleName(), typeMetadata);
+                typeMetadataMap.put(name, typeMetadata);
 
                 vars.put(name, bean);
             }
