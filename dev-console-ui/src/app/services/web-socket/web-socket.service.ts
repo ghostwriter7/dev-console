@@ -9,7 +9,7 @@ export class WebSocketService {
   private readonly eventService = inject(EventService);
 
   public connect(): void {
-    this.ws = new WebSocket('ws://localhost:8080/v1/dev/console/ws');
+    this.ws = new WebSocket('ws://localhost:11111/v1/dev/console/ws');
 
     this.ws.addEventListener('message', (event: MessageEvent<string>) => {
       this.eventService.emit(MESSAGE_RECEIVED_EVENT, event.data);

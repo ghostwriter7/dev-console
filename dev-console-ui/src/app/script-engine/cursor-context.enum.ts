@@ -1,0 +1,8 @@
+export enum CursorContext {
+  ROOT_SYMBOL = 'ROOT_SYMBOL',
+  MEMBER_ACCESS = 'MEMBER_ACCESS',
+  INSIDE_CALL = 'INSIDE_CALL',
+  STRING = 'STRING',
+  UNKNOWN = 'UNKNOWN',
+}
+

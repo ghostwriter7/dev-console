@@ -16,10 +16,7 @@
           <clr-accordion-panel [clrAccordionPanelOpen]="true">
             <clr-accordion-title>Script</clr-accordion-title>
             <clr-accordion-content *clrIfExpanded>
-              <app-script-control
-                [uuid]="group().uuid"
-                [payload]="group().script"
-              />
+              <app-script-control [group]="group()"/>
             </clr-accordion-content>
           </clr-accordion-panel>
 

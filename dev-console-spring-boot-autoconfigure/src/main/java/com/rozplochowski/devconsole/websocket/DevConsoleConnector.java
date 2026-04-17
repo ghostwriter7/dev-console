@@ -67,7 +67,7 @@ public class DevConsoleConnector {
         return client.execute(
                 handler,
                 new WebSocketHttpHeaders(),
-                URI.create("ws://localhost:8080/v1/dev/console/ws")
+                URI.create("ws://localhost:11111/v1/dev/console/ws")
         );
     }
 }
