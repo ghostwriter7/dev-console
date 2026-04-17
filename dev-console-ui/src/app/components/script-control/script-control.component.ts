@@ -30,6 +30,7 @@ export class ScriptControl implements OnInit, OnDestroy {
     this.editor = monaco.editor.create(this.editorContainer().nativeElement, {
       language: 'java',
       theme: 'vs-dark',
+      wordBasedSuggestions: 'off',
       automaticLayout: true,
       lineNumbers: 'on',
       value: this.group().script,
