@@ -10,10 +10,9 @@ import java.util.Arrays;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TypeMetadataFactory {
 
-    public static TypeMetadata from(Object bean) {
-        var clazz = bean.getClass();
+    public static TypeMetadata from(Class<?> clazz) {
 
-        var publicMethods = Arrays.stream(bean.getClass().getMethods())
+        var publicMethods = Arrays.stream(clazz.getMethods())
                 .filter(m -> !m.isBridge() && !m.isSynthetic())
                 .map(TypeMetadataFactory::toMethodMetadata)
                 .toList();

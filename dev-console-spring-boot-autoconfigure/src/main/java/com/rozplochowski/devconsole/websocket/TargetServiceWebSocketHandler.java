@@ -47,7 +47,7 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
         for (var name : context.getBeanDefinitionNames()) {
             if (!name.contains("springframework") && !name.contains("jpa") && !name.endsWith("Controller")) {
                 var bean = context.getBean(name);
-                typeMetadataList.add(TypeMetadataFactory.from(bean));
+                typeMetadataList.add(TypeMetadataFactory.from(bean.getClass()));
                 symbols.add(new Symbol(name, TypeMetadataFactory.toTypeInfo(bean.getClass())));
                 vars.put(name, bean);
             }

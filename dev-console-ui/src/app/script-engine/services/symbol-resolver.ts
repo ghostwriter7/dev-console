@@ -36,7 +36,9 @@ export class SymbolResolver {
     }
 
     const response = await this.webSocketService.sendSync<TypeMetadataComputedEvent>(command);
-    this.scriptEngineStore.insertTypeMetadata(service, response.typeMetadata);
+
+    if (response.typeMetadata)
+      this.scriptEngineStore.insertTypeMetadata(service, response.typeMetadata);
 
     return response.typeMetadata;
   }
