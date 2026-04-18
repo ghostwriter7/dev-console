@@ -1,10 +1,13 @@
 package com.rozplochowski.devconsole.websocket;
 
 import com.rozplochowski.devconsole.TypeMetadata;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class TypeMetadataFactory {
 
     static TypeMetadata from(Object bean) {
@@ -15,7 +18,7 @@ class TypeMetadataFactory {
                 .map(TypeMetadataFactory::toMethodMetadata)
                 .toList();
 
-        return new TypeMetadata(clazz.getSimpleName(), publicMethods);
+        return new TypeMetadata(clazz.getSimpleName(), clazz.getName(), publicMethods);
     }
 
     private static TypeMetadata.MethodMetadata toMethodMetadata(Method method) {

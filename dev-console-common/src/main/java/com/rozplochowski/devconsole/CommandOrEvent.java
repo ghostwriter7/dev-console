@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -38,6 +38,6 @@ public sealed interface CommandOrEvent {
     record ServerConnectedEvent(String serviceName) implements CommandOrEvent {
     }
 
-    record AvailableServicesChangedEvent(List<String> services) implements CommandOrEvent {
+    record AvailableServicesChangedEvent(Set<String> services) implements CommandOrEvent {
     }
 }

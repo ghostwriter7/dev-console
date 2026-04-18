@@ -5,5 +5,5 @@ import com.rozplochowski.devconsole.TypeMetadata;
 
 import java.util.List;
 
-record ServerContext(List<TypeMetadata> typeMetadata, List<Symbol> symbols) {
+public record ServerContext(List<TypeMetadata> typeMetadata, List<Symbol> symbols) {
 }
