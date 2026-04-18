@@ -1,6 +1,4 @@
-package com.rozplochowski.devconsole.handler.handlers;
-
-import com.rozplochowski.devconsole.CommandOrEvent;
+package com.rozplochowski.devconsole;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

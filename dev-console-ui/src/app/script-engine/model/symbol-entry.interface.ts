@@ -1,3 +1,5 @@
+import { TypeInfo } from './type-info.interface';
+
 /**
  * Symbol represents a local or global binding.
  * @Example:
@@ -8,5 +10,5 @@
  */
 export interface SymbolEntry {
   name: string;
-  type: string;
+  type: TypeInfo;
 }

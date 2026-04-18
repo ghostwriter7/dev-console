@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties(DevConsoleProperties.class)
 @ConditionalOnProperty(prefix = "dev.console", name = "enabled", havingValue = "true")
 @Import({WebSocketConfig.class, ThreadSchedulerConfig.class})
-@ComponentScan(basePackageClasses = DevConsoleConnector.class)
+@ComponentScan(basePackageClasses = DevConsoleConnector.class,
+        basePackages = "com.rozplochowski.devconsole.common")
 public class DevConsoleAutoConfiguration {
 }

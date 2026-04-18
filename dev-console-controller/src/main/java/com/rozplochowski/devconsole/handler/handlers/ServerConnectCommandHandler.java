@@ -2,10 +2,11 @@ package com.rozplochowski.devconsole.handler.handlers;
 
 
 import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.Handles;
 import com.rozplochowski.devconsole.Symbol;
 import com.rozplochowski.devconsole.TypeMetadata;
 import com.rozplochowski.devconsole.handler.*;
-import lombok.AccessLevel;
+import com.rozplochowski.devconsole.common.MessageSender;import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Handles(CommandOrEvent.ServerConnectCommand.class)
-class ServerConnectCommandHandler implements MessageHandler<CommandOrEvent.ServerConnectCommand> {
+class ServerConnectCommandHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.ServerConnectCommand> {
     private final SessionRepository sessionRepository;
     private final ServerContextRepository serverContextRepository;
     private final MessageSender sender;

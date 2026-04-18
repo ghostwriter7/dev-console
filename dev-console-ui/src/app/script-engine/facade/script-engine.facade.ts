@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { WebSocketService } from '../../services/web-socket/web-socket.service';
 import { ScriptContext } from '../model/script-context';
 import { SuggestionContext } from '../model/suggestion-context';
 import { SuggestionInfo } from '../model/suggestion-info.interface';
@@ -15,16 +16,17 @@ import { SymbolResolver } from '../services/symbol-resolver';
 export class ScriptEngineFacade {
   private readonly scriptEngineStore = inject(ScriptEngineStore);
 
-  private readonly symbolResolver = new SymbolResolver(this.scriptEngineStore);
+  private readonly webSocketService = inject(WebSocketService);
+  private readonly symbolResolver = new SymbolResolver(this.scriptEngineStore, this.webSocketService);
   private readonly expressionResolver = new ExpressionResolver(this.symbolResolver);
   private readonly statementInfoUpdater = new StatementInfoUpdater(this.scriptEngineStore);
   private readonly scriptAnalyzer = new ScriptAnalyzer(this.scriptEngineStore, this.expressionResolver);
   private readonly cursorContextResolver = new CursorContextResolver();
   private readonly suggestionResolver = new SuggestionResolver(this.cursorContextResolver, this.expressionResolver, this.scriptEngineStore);
 
-  public getSuggestions(script: string, uuid: string, service: string, line: number, column: number): SuggestionInfo[] {
+  public getSuggestions(script: string, uuid: string, service: string, line: number, column: number): Promise<SuggestionInfo[]> {
     const statements = this.scriptEngineStore.getStatementsByUuid(uuid);
-    if (!statements?.length) return [];
+    if (!statements?.length) return Promise.resolve([]);
 
     const context = new SuggestionContext(service, script, uuid, statements, line, column);
     return this.suggestionResolver.resolve(context);

@@ -53,7 +53,7 @@ export class ScriptControl implements OnInit, OnDestroy {
 
     monaco.languages.registerCompletionItemProvider('java', {
       triggerCharacters: ['.', '('],
-      provideCompletionItems: (model, position, context, token) => {
+      provideCompletionItems: async (model, position, context, token) => {
         const word = model.getWordUntilPosition(position);
 
         const range = {
@@ -63,13 +63,15 @@ export class ScriptControl implements OnInit, OnDestroy {
           endColumn: word.endColumn
         };
 
+        const suggestionInfos = await this.scriptEngineFacade.getSuggestions(this.editor.getValue(), this.group().uuid, this.group().service, position.lineNumber, position.column);
+        const suggestions = suggestionInfos.map((suggestion) => ({
+          ...suggestion,
+          kind: suggestion.kind === CompletionType.Method ? monaco.languages.CompletionItemKind.Method : monaco.languages.CompletionItemKind.Field,
+          range
+        }));
+
         return {
-          suggestions: this.scriptEngineFacade.getSuggestions(this.editor.getValue(), this.group().uuid, this.group().service, position.lineNumber, position.column)
-            .map((suggestion) => ({
-              ...suggestion,
-              kind: suggestion.kind === CompletionType.Method ? monaco.languages.CompletionItemKind.Method : monaco.languages.CompletionItemKind.Field,
-              range
-            }))
+          suggestions
         };
       }
     })

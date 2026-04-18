@@ -1,14 +1,14 @@
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { StatementInfo } from './model/statement-info.interface';
-import { TypeInfo } from './model/type-info.interface';
+import { TypeInfo, TypeMetadata } from './model/type-info.interface';
 import { SymbolEntry } from './model/symbol-entry.interface';
 
 type ServiceName = string;
 type ScriptUuid = string;
 
 type ScriptEngineStore = {
-  typeMetadata: Record<ServiceName, Record<string, TypeInfo>>;
-  bindings: Record<ServiceName, Record<string, string>>;
+  typeMetadata: Record<ServiceName, Record<string, TypeMetadata>>;
+  bindings: Record<ServiceName, Record<string, TypeInfo>>;
   localVars: Record<ScriptUuid, SymbolEntry[]>;
   statements: Record<ScriptUuid, StatementInfo[]>;
 }
@@ -29,6 +29,17 @@ export const ScriptEngineStore = signalStore({
     return {
       getStatementsByUuid: (uuid: string) => store.statements()[uuid],
 
+      insertTypeMetadata: (serviceName: string, typeMetadata: TypeMetadata): void =>
+        patchState(store, ({
+          typeMetadata: {
+            ...store.typeMetadata(),
+            [serviceName]: {
+              ...store.typeMetadata()[serviceName],
+              [typeMetadata.type]: typeMetadata
+            }
+          }
+        })),
+
       setBindings: (serviceName: string, bindings: SymbolEntry[]): void => {
         const bindingsDictionary = bindings.reduce((dict, binding) => ({ ...dict, [binding.name]: binding.type }), {});
         patchState(store, ({ bindings: { ...store.bindings(), [serviceName]: bindingsDictionary } }));
@@ -42,8 +53,11 @@ export const ScriptEngineStore = signalStore({
           }
         })),
 
-      setTypeMetadata: (serviceName: string, typeMetadata: TypeInfo[]): void => {
-        const typeMetadataDictionary = Object.fromEntries(typeMetadata.map((typeInfo) => [typeInfo.type, typeInfo]));
+      setTypeMetadata: (serviceName: string, typeMetadata: TypeMetadata[]): void => {
+        const typeMetadataDictionary = typeMetadata.reduce((dict, typeInfo) => ({
+          ...dict,
+          [typeInfo.type]: typeInfo
+        }), {});
         patchState(store, ({ typeMetadata: { ...store.typeMetadata(), [serviceName]: typeMetadataDictionary } }))
       },
 

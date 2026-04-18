@@ -1,7 +1,7 @@
 import { SymbolEntry } from '../script-engine/model/symbol-entry.interface';
-import { TypeInfo } from '../script-engine/model/type-info.interface';
+import { TypeMetadata } from '../script-engine/model/type-info.interface';
 import {
-  CLIENT_CONNECT_COMMAND, Commands,
+  CLIENT_CONNECT_COMMAND, Commands, COMPUTE_TYPE_METADATA_COMMAND,
   EXECUTE_SCRIPT_COMMAND,
   INSTALL_TYPE_METADATA_COMMAND,
   SERVER_CONNECT_COMMAND
@@ -11,7 +11,7 @@ import {
   Events,
   MESSAGE_RECEIVED_EVENT,
   SCRIPT_EXECUTED_EVENT,
-  SERVER_CONNECTED_EVENT
+  SERVER_CONNECTED_EVENT, TYPE_METADATA_COMPUTED_EVENT
 } from './events';
 
 export type CommandOrEvent =
@@ -22,13 +22,16 @@ export type CommandOrEvent =
   | ServerConnectedEvent
   | MessageReceivedEvent
   | AvailableServicesChangedEvent
-  | InstallTypeMetadataCommand;
+  | InstallTypeMetadataCommand
+  | ComputeTypeMetadataCommand
+  | TypeMetadataComputedEvent;
 
 export const isCommandOrEvent = (input: unknown): input is CommandOrEvent =>
   typeof input === 'object' && input !== null && 'type' in input;
 
 export interface BaseCommandOrEvent {
   type: CommandOrEventName;
+  id?: string;
 }
 
 export interface ServerConnectCommand extends BaseCommandOrEvent {
@@ -78,8 +81,19 @@ export interface AvailableServicesChangedEvent extends BaseCommandOrEvent {
 export interface InstallTypeMetadataCommand extends BaseCommandOrEvent {
   type: typeof INSTALL_TYPE_METADATA_COMMAND,
   serviceName: string;
-  typeMetadata: TypeInfo[];
+  typeMetadata: TypeMetadata[];
   symbols: SymbolEntry[];
+}
+
+export interface ComputeTypeMetadataCommand extends Required<BaseCommandOrEvent> {
+  type: typeof COMPUTE_TYPE_METADATA_COMMAND,
+  fullName: string;
+  targetServiceName: string;
+}
+
+export interface TypeMetadataComputedEvent extends Required<BaseCommandOrEvent> {
+  type: typeof TYPE_METADATA_COMPUTED_EVENT;
+  typeMetadata: TypeMetadata;
 }
 
 export interface MessageReceivedEvent extends BaseCommandOrEvent {

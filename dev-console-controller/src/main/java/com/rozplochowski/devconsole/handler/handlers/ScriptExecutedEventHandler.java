@@ -1,7 +1,8 @@
 package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
-import com.rozplochowski.devconsole.handler.MessageSender;
+import com.rozplochowski.devconsole.Handles;
+import com.rozplochowski.devconsole.common.MessageSender;
 import com.rozplochowski.devconsole.handler.SessionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +14,14 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 @Handles(CommandOrEvent.ScriptExecutedEvent.class)
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class ScriptExecutedEventHandler implements MessageHandler<CommandOrEvent.ScriptExecutedEvent> {
+class ScriptExecutedEventHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.ScriptExecutedEvent> {
     private final MessageSender sender;
     private final SessionRepository sessionRepository;
 
     @Override
     public void handle(CommandOrEvent.ScriptExecutedEvent message, WebSocketSession session) {
         log.info("Received ScriptExecutedEvent from Session: {} for UUID: {}. Replaying back to UI.", session.getId(), message.uuid());
-        sessionRepository.getClient().ifPresent(client -> sender.send(client, message));
+        sessionRepository.getClient().ifPresentOrElse(client -> sender.send(client, message),
+                () -> log.error("No client session found. Failed to send ScriptExecutedEvent."));
     }
 }

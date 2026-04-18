@@ -12,7 +12,7 @@ export class ScriptAnalyzer {
   ) {
   }
 
-  public rebuildVariables(context: ScriptContext): void {
+  public async rebuildVariables(context: ScriptContext): Promise<void> {
     const statements: StatementInfo[] = this.store.getStatementsByUuid(context.uuid);
     const declaringStatements = statements.filter(({ raw }) => raw.includes('='));
 
@@ -21,11 +21,11 @@ export class ScriptAnalyzer {
     for (const { raw } of declaringStatements) {
       const [symbol, expression] = raw.split('=');
       const symbolName = symbol.split(' ')[1].trim();
-      const type = this.expressionResolver.resolveExpression(expression, context, localVariables);
+      const { type, fullName } = await this.expressionResolver.resolveExpression(expression, context, localVariables);
 
       localVariables.push({
           name: symbolName,
-          type: type.type,
+          type: { type, fullName },
         }
       );
     }

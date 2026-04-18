@@ -8,9 +8,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class TypeMetadataFactory {
+public class TypeMetadataFactory {
 
-    static TypeMetadata from(Object bean) {
+    public static TypeMetadata from(Object bean) {
         var clazz = bean.getClass();
 
         var publicMethods = Arrays.stream(bean.getClass().getMethods())
@@ -24,9 +24,13 @@ class TypeMetadataFactory {
     private static TypeMetadata.MethodMetadata toMethodMetadata(Method method) {
         return new TypeMetadata.MethodMetadata(
                 method.getName(),
-                method.getReturnType().getSimpleName(),
-                Arrays.stream(method.getParameterTypes()).map(Class::getSimpleName).toList()
+                toTypeInfo(method.getReturnType()),
+                Arrays.stream(method.getParameterTypes()).map(TypeMetadataFactory::toTypeInfo).toList()
         );
+    }
+
+    static TypeMetadata.TypeInfo toTypeInfo(Class<?> clazz) {
+        return new TypeMetadata.TypeInfo(clazz.getSimpleName(), clazz.getName());
     }
 
 }

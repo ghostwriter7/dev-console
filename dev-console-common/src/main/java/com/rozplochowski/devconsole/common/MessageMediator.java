@@ -1,8 +1,8 @@
-package com.rozplochowski.devconsole.handler;
+package com.rozplochowski.devconsole.common;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
-import com.rozplochowski.devconsole.handler.handlers.Handles;
-import com.rozplochowski.devconsole.handler.handlers.MessageHandler;
+import com.rozplochowski.devconsole.Handles;
+import com.rozplochowski.devconsole.MessageHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-class MessageMediator {
+public class MessageMediator {
 
     private final Map<Class<? extends CommandOrEvent>, MessageHandler<?>> handlers;
 
@@ -28,7 +28,7 @@ class MessageMediator {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends CommandOrEvent> void dispatch(WebSocketSession session, T commandOrEvent) {
+    public <T extends CommandOrEvent> void dispatch(WebSocketSession session, T commandOrEvent) {
         var handler = (MessageHandler<T>) handlers.get(commandOrEvent.getClass());
 
         if (handler == null) {

@@ -1,19 +1,19 @@
 import { ScriptContext } from '../model/script-context';
 import { SymbolEntry } from '../model/symbol-entry.interface';
-import { TypeInfo, UnknownTypeInfo } from '../model/type-info.interface';
+import { TypeMetadata, UnknownTypeInfo } from '../model/type-info.interface';
 import { SymbolResolver } from './symbol-resolver';
 
 export class ExpressionResolver {
   constructor(private readonly symbolResolver: SymbolResolver) {
   }
 
-  public resolveExpression(expression: string, context: ScriptContext, localVariables: SymbolEntry[]): TypeInfo {
+  public async resolveExpression(expression: string, context: ScriptContext, localVariables: SymbolEntry[]): Promise<TypeMetadata> {
     const parts = expression.split('.').map((part) => part.trim()).reverse();
 
     const root = parts.pop();
     if (!root) return UnknownTypeInfo;
 
-    let type = this.symbolResolver.resolve(root, localVariables, context.service);
+    let type = await this.symbolResolver.resolve(root, localVariables, context.service);
 
     while (type !== null && parts.length) {
       const part = parts.pop();
@@ -26,7 +26,7 @@ export class ExpressionResolver {
         return UnknownTypeInfo;
       }
 
-      type = this.symbolResolver.resolveTypeInfo(matchingMethod.returnType, context.service);
+      type = await this.symbolResolver.resolveTypeInfo(matchingMethod.returnType, context.service);
     }
 
     return type ?? UnknownTypeInfo;

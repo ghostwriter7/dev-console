@@ -1,7 +1,8 @@
 package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
-import com.rozplochowski.devconsole.handler.MessageSender;
+import com.rozplochowski.devconsole.Handles;
+import com.rozplochowski.devconsole.common.MessageSender;
 import com.rozplochowski.devconsole.handler.SessionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 @Handles(CommandOrEvent.ExecuteScriptCommand.class)
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class ExecuteScriptCommandHandler implements MessageHandler<CommandOrEvent.ExecuteScriptCommand> {
+class ExecuteScriptCommandHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.ExecuteScriptCommand> {
     private final SessionRepository sessionRepository;
     private final MessageSender sender;
 

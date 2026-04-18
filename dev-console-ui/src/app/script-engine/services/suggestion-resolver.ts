@@ -1,7 +1,7 @@
 import { CompletionType } from '../completion-type.enum';
 import { CursorContext } from '../cursor-context.enum';
 import { SuggestionContext } from '../model/suggestion-context';
-import { MethodInfo, TypeInfo, UnknownTypeInfo } from '../model/type-info.interface';
+import { MethodInfo, TypeMetadata, UnknownTypeInfo } from '../model/type-info.interface';
 import { ScriptEngineStore } from '../script-engine.store';
 import { CursorContextResolver } from './cursor-context-resolver';
 import { SuggestionInfo } from '../model/suggestion-info.interface';
@@ -16,7 +16,7 @@ export class SuggestionResolver {
   ) {
   }
 
-  public resolve(context: SuggestionContext): SuggestionInfo[] {
+  public async resolve(context: SuggestionContext): Promise<SuggestionInfo[]> {
     const { statements, line, column } = context;
     const statementWithCursor = statements[line - 1];
 
@@ -48,7 +48,7 @@ export class SuggestionResolver {
         const lastDotIndex = statementWithCursor.raw.lastIndexOf('.');
         const expression = this.getExpressionFromStatement(statementWithCursor.raw.substring(0, lastDotIndex));
         const localVariables = this.scriptEngineStore.localVars()[context.uuid];
-        const typeInfo: TypeInfo = this.expressionResolver.resolveExpression(expression, context, localVariables)
+        const typeInfo: TypeMetadata = await this.expressionResolver.resolveExpression(expression, context, localVariables)
 
         if (typeInfo === UnknownTypeInfo) return [];
 
