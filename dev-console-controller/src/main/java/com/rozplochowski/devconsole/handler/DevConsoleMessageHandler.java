@@ -2,6 +2,7 @@ package com.rozplochowski.devconsole.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.Symbol;
 import com.rozplochowski.devconsole.TypeMetadata;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -12,6 +13,7 @@ import org.springframework.web.socket.*;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -19,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DevConsoleMessageHandler implements WebSocketHandler {
     private final Map<String, WebSocketSession> sessionByServerName = new HashMap<>();
-    private final Map<String, Map<String, TypeMetadata>> typeMetadataByServiceName = new HashMap<>();
+    private final Map<String, ServerContext> serverContextMap = new HashMap<>();
     private WebSocketSession client;
     private final ObjectMapper mapper;
 
@@ -35,16 +37,16 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
 
         CommandOrEvent msg = mapper.readValue(payload.toString(), CommandOrEvent.class);
 
-        if (msg instanceof CommandOrEvent.ServerConnectCommand(String serviceName, Map<String, TypeMetadata> typeMetadata)) {
+        if (msg instanceof CommandOrEvent.ServerConnectCommand(String serviceName, List<TypeMetadata> typeMetadata, List<Symbol> symbols)) {
             handleServiceRegistration(serviceName, session);
-            handleTypeMetadata(serviceName, typeMetadata);
+            handleTypeMetadataAndSymbols(serviceName, typeMetadata, symbols);
         } else if (msg instanceof CommandOrEvent.ClientConnectCommand) {
             log.info("Received ClientConnectCommand from {}. UI connected.", session.getId());
             client = session;
             notifyClientAboutAvailableServices();
-            if (!typeMetadataByServiceName.isEmpty()) {
-                typeMetadataByServiceName.forEach((serviceName, metadata) -> {
-                    send(client, new CommandOrEvent.InstallTypeMetadataCommand(serviceName, metadata));
+            if (!serverContextMap.isEmpty()) {
+                serverContextMap.forEach((serviceName, context) -> {
+                    send(client, new CommandOrEvent.InstallTypeMetadataCommand(serviceName, context.typeMetadata(), context.symbols()));
                 });
             }
         } else if (msg instanceof CommandOrEvent.ExecuteScriptCommand executeScriptCommand) {
@@ -61,10 +63,10 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
 
     }
 
-    private void handleTypeMetadata(String serviceName, Map<String, TypeMetadata> typeMetadata) {
-        typeMetadataByServiceName.put(serviceName, typeMetadata);
+    private void handleTypeMetadataAndSymbols(String serviceName, List<TypeMetadata> typeMetadata, List<Symbol> symbols) {
+        serverContextMap.put(serviceName, new ServerContext(typeMetadata, symbols));
         if (client != null) {
-            var payload = new CommandOrEvent.InstallTypeMetadataCommand(serviceName, typeMetadata);
+            var payload = new CommandOrEvent.InstallTypeMetadataCommand(serviceName, typeMetadata, symbols);
             send(client, payload);
         }
     }

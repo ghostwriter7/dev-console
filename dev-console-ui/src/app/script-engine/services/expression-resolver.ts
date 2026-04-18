@@ -20,7 +20,7 @@ export class ExpressionResolver {
       if (!part) return UnknownTypeInfo;
 
       const methodName = part.split('(')[0];
-      const matchingMethod = type.methodsByName[methodName]?.[0];
+      const matchingMethod = type.methods.find(({ name }) => name === methodName);
 
       if (!matchingMethod) {
         return UnknownTypeInfo;

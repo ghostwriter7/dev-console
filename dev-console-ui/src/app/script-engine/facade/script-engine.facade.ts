@@ -38,6 +38,6 @@ export class ScriptEngineFacade {
   }
 
   public getLocalVariables(uuid: string): SymbolEntry[] {
-    return this.scriptEngineStore.varsByScriptUuid()[uuid];
+    return this.scriptEngineStore.localVars()[uuid];
   }
 }

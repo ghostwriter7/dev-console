@@ -1,3 +1,4 @@
+import { CompletionType } from '../completion-type.enum';
 import { CursorContext } from '../cursor-context.enum';
 import { SuggestionContext } from '../model/suggestion-context';
 import { MethodInfo, TypeInfo, UnknownTypeInfo } from '../model/type-info.interface';
@@ -5,7 +6,6 @@ import { ScriptEngineStore } from '../script-engine.store';
 import { CursorContextResolver } from './cursor-context-resolver';
 import { SuggestionInfo } from '../model/suggestion-info.interface';
 import { ExpressionResolver } from './expression-resolver';
-import * as monaco from 'monaco-editor';
 
 export class SuggestionResolver {
 
@@ -26,8 +26,8 @@ export class SuggestionResolver {
 
     switch (cursorContext) {
       case CursorContext.ROOT_SYMBOL: {
-        const bindings = this.scriptEngineStore.bindingsByServiceName()[context.service];
-        const localVariables = this.scriptEngineStore.varsByScriptUuid()[context.uuid];
+        const bindings = this.scriptEngineStore.bindings()[context.service];
+        const localVariables = this.scriptEngineStore.localVars()[context.uuid];
 
         const statement = this.getExpressionFromStatement(statementWithCursor.raw);
 
@@ -35,7 +35,7 @@ export class SuggestionResolver {
           .filter((symbolName) => symbolName.startsWith(statement) && symbolName !== statement)
           .map((symbolName) => ({
             label: symbolName,
-            kind: monaco.languages.CompletionItemKind.Variable,
+            kind: CompletionType.Variable,
             insertText: symbolName
           }));
       }
@@ -47,31 +47,27 @@ export class SuggestionResolver {
       case CursorContext.MEMBER_ACCESS: {
         const lastDotIndex = statementWithCursor.raw.lastIndexOf('.');
         const expression = this.getExpressionFromStatement(statementWithCursor.raw.substring(0, lastDotIndex));
-        const localVariables = this.scriptEngineStore.varsByScriptUuid()[context.uuid];
+        const localVariables = this.scriptEngineStore.localVars()[context.uuid];
         const typeInfo: TypeInfo = this.expressionResolver.resolveExpression(expression, context, localVariables)
 
         if (typeInfo === UnknownTypeInfo) return [];
 
         const prefix = statementWithCursor.raw.substring(lastDotIndex + 1);
 
-        return Object.entries(this.getFilterMethods(typeInfo.methodsByName, prefix))
-          .flatMap(([methodName, methodInfos]) => methodInfos.map((methodInfo) => ({
-            label: `${methodName}(${methodInfo.parameters.join(', ')})`,
-            kind: monaco.languages.CompletionItemKind.Method,
-            insertText: methodInfo.parameters.length ? `${methodName}(` : `${methodName}()`,
-          })));
+        return this.getFilterMethods(typeInfo.methods, prefix).map(({ name, parameters }) => ({
+          label: `${name}(${parameters.join(', ')})`,
+          kind: CompletionType.Method,
+          insertText: parameters.length ? `${name}(` : `${name}()`,
+        }));
       }
     }
     return [];
   }
 
-  private getFilterMethods(methods: Record<string, MethodInfo[]>, prefix: string): Record<string, MethodInfo[]> {
+  private getFilterMethods(methods: MethodInfo[], prefix: string): MethodInfo[] {
     if (!prefix) return methods;
 
-    return Object.fromEntries(
-      Object.entries(methods)
-        .filter(([methodName, methodInfos]) => methodName.startsWith(prefix) && methodName !== prefix)
-    );
+    return methods.filter(({ name }) => name.startsWith(prefix) && name !== prefix);
   }
 
   private getExpressionFromStatement(statement: string): string {

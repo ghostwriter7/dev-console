@@ -25,7 +25,7 @@ export class ScriptAnalyzer {
 
       localVariables.push({
           name: symbolName,
-          type: type.name,
+          type: type.type,
         }
       );
     }

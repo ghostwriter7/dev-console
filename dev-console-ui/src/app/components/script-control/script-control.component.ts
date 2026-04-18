@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule } from '@clr/angular';
 import * as monaco from 'monaco-editor';
 import { UiMessageGroup } from '../../model/ui-message-group.interface';
+import { CompletionType } from '../../script-engine/completion-type.enum';
 import { ScriptEngineFacade } from '../../script-engine/facade/script-engine.facade';
 import { DevConsoleStore } from '../../store/dev-console.store';
 
@@ -66,6 +67,7 @@ export class ScriptControl implements OnInit, OnDestroy {
           suggestions: this.scriptEngineFacade.getSuggestions(this.editor.getValue(), this.group().uuid, this.group().service, position.lineNumber, position.column)
             .map((suggestion) => ({
               ...suggestion,
+              kind: suggestion.kind === CompletionType.Method ? monaco.languages.CompletionItemKind.Method : monaco.languages.CompletionItemKind.Field,
               range
             }))
         };

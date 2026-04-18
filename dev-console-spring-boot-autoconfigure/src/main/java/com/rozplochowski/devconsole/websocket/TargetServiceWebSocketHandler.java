@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.ScriptResult;
+import com.rozplochowski.devconsole.Symbol;
 import com.rozplochowski.devconsole.TypeMetadata;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codehaus.groovy.control.CompilerConfiguration;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -20,9 +20,7 @@ import org.springframework.web.socket.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -51,38 +49,23 @@ public class TargetServiceWebSocketHandler implements WebSocketHandler {
         Binding binding = new Binding(vars);
         session.getAttributes().put(BINDING, binding);
 
-        var importCustomizer = new ImportCustomizer();
-        importCustomizer.addImports("groovy.json.JsonOutput");
-        importCustomizer.addStarImports("java.util", "java.time");
-
-        Map<String, TypeMetadata> typeMetadataMap = new HashMap<>();
+        List<TypeMetadata> typeMetadataList = new ArrayList<>();
+        List<Symbol> symbols = new ArrayList<>();
         for (var name : context.getBeanDefinitionNames()) {
             if (!name.contains("springframework") && !name.contains("jpa") && !name.endsWith("Controller")) {
                 var bean = context.getBean(name);
-                var clazz = bean.getClass();
-
-                var publicMethods = Arrays.stream(bean.getClass().getMethods())
-                        .filter(m -> !m.isBridge() && !m.isSynthetic())
-                        .map(m -> new TypeMetadata.MethodMetadata(m.getName(), m.getReturnType().getSimpleName(),
-                                Arrays.stream(m.getParameterTypes()).map(Class::getSimpleName).toList()))
-                        .toList();
-
-                var typeMetadata = new TypeMetadata(clazz.getSimpleName(), publicMethods);
-                typeMetadataMap.put(name, typeMetadata);
-
+                typeMetadataList.add(TypeMetadataFactory.from(bean));
+                symbols.add(new Symbol(name, bean.getClass().getSimpleName()));
                 vars.put(name, bean);
             }
         }
 
-        var compilerConfig = new CompilerConfiguration();
-        compilerConfig.addCompilationCustomizers(importCustomizer);
-
-        var shell = new GroovyShell(getClass().getClassLoader(), binding, compilerConfig);
+        var shell = new GroovyShellFactory().fromBinding(binding);
         session.getAttributes().put(SHELL, shell);
 
         var appName = getAppName();
         log.info("Sending initial WebSocket message for app: {}", appName);
-        var payload = new CommandOrEvent.ServerConnectCommand(appName, typeMetadataMap);
+        var payload = new CommandOrEvent.ServerConnectCommand(appName, typeMetadataList, symbols);
         var message = mapper.writeValueAsString(payload);
 
         session.sendMessage(new TextMessage(message));

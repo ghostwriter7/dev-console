@@ -19,18 +19,22 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CommandOrEvent.AvailableServicesChangedEvent.class, name = "availableServicesChangedEvent")
 })
 public sealed interface CommandOrEvent {
-    record ServerConnectCommand(String serviceName, Map<String, TypeMetadata> typeMetadata) implements CommandOrEvent {
+    record ServerConnectCommand(String serviceName, List<TypeMetadata> typeMetadata,
+                                List<Symbol> symbols) implements CommandOrEvent {
     }
 
-    record ClientConnectCommand() implements CommandOrEvent {}
+    record ClientConnectCommand() implements CommandOrEvent {
+    }
 
     record ExecuteScriptCommand(UUID uuid, String targetServiceName, String script) implements CommandOrEvent {
     }
 
-    record InstallTypeMetadataCommand(String serviceName, Map<String, TypeMetadata> typeMetadata) implements CommandOrEvent {}
+    record InstallTypeMetadataCommand(String serviceName, List<TypeMetadata> typeMetadata, List<Symbol> symbols) implements CommandOrEvent {
+    }
 
     record ScriptExecutedEvent(UUID uuid, ScriptResult scriptResult) implements CommandOrEvent {
     }
+
     record ServerConnectedEvent(String serviceName) implements CommandOrEvent {
     }
 

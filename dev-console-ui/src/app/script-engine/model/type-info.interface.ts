@@ -1,14 +1,15 @@
 export interface TypeInfo {
-  name: string;
-  methodsByName: Record<string, MethodInfo[]>;
+  type: string;
+  methods: MethodInfo[];
 }
 
 export interface MethodInfo {
+  name: string;
   parameters: string[];
   returnType: string;
 }
 
 export const UnknownTypeInfo: TypeInfo = {
-  name: 'unknown',
-  methodsByName: {},
+  type: 'unknown',
+  methods: [],
 }

@@ -3,60 +3,21 @@ import { StatementInfo } from './model/statement-info.interface';
 import { TypeInfo } from './model/type-info.interface';
 import { SymbolEntry } from './model/symbol-entry.interface';
 
+type ServiceName = string;
+type ScriptUuid = string;
+
 type ScriptEngineStore = {
-  typesByServiceName: Record<string, Record<string, TypeInfo>>;
-  bindingsByServiceName: Record<string, Record<string, SymbolEntry>>;
-  varsByScriptUuid: Record<string, SymbolEntry[]>;
-  statementsByScriptUuid: Record<string, StatementInfo[]>;
+  typeMetadata: Record<ServiceName, Record<string, TypeInfo>>;
+  bindings: Record<ServiceName, Record<string, string>>;
+  localVars: Record<ScriptUuid, SymbolEntry[]>;
+  statements: Record<ScriptUuid, StatementInfo[]>;
 }
 
 const initialState: ScriptEngineStore = {
-  typesByServiceName: {
-    demo: {
-      String: {
-        name: 'String',
-        methodsByName: {
-          startsWith: [{
-            parameters: ['prefix'],
-            returnType: 'boolean',
-          }],
-        },
-      },
-      UserService: {
-        name: 'UserService',
-        methodsByName: {
-          findById: [{
-            parameters: ['id'],
-            returnType: 'User',
-          }],
-          findAll: [{
-            parameters: [],
-            returnType: 'List<User>',
-          }],
-        },
-      },
-      User: {
-        name: 'User',
-        methodsByName: {
-          getName: [{
-            parameters: [],
-            returnType: 'String',
-          }],
-          getOrders: [{
-            parameters: [],
-            returnType: 'List<Order>',
-          }],
-        }
-      }
-    }
-  },
-  bindingsByServiceName: {
-    'demo': {
-      userService: { name: 'userService', type: 'UserService' },
-    }
-  },
-  varsByScriptUuid: {},
-  statementsByScriptUuid: {}
+  typeMetadata: {},
+  bindings: {},
+  localVars: {},
+  statements: {}
 };
 
 export const ScriptEngineStore = signalStore({
@@ -66,20 +27,30 @@ export const ScriptEngineStore = signalStore({
   withMethods((store) => {
 
     return {
-      getStatementsByUuid: (uuid: string) => store.statementsByScriptUuid()[uuid],
+      getStatementsByUuid: (uuid: string) => store.statements()[uuid],
+
+      setBindings: (serviceName: string, bindings: SymbolEntry[]): void => {
+        const bindingsDictionary = bindings.reduce((dict, binding) => ({ ...dict, [binding.name]: binding.type }), {});
+        patchState(store, ({ bindings: { ...store.bindings(), [serviceName]: bindingsDictionary } }));
+      },
 
       setLocalVars: (uuid: string, localVars: SymbolEntry[]): void =>
         patchState(store, ({
-          varsByScriptUuid: {
-            ...store.varsByScriptUuid(),
+          localVars: {
+            ...store.localVars(),
             [uuid]: localVars
           }
         })),
 
+      setTypeMetadata: (serviceName: string, typeMetadata: TypeInfo[]): void => {
+        const typeMetadataDictionary = Object.fromEntries(typeMetadata.map((typeInfo) => [typeInfo.type, typeInfo]));
+        patchState(store, ({ typeMetadata: { ...store.typeMetadata(), [serviceName]: typeMetadataDictionary } }))
+      },
+
       setStatements: (uuid: string, statements: StatementInfo[]): void => {
         patchState(store, ({
-          statementsByScriptUuid: {
-            ...store.statementsByScriptUuid(),
+          statements: {
+            ...store.statements(),
             [uuid]: statements
           }
         }))

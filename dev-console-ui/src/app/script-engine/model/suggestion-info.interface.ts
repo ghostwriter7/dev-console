@@ -1,7 +1,7 @@
-import * as monaco from 'monaco-editor';
+import { CompletionType } from '../completion-type.enum';
 
 export interface SuggestionInfo {
   label: string;
-  kind: monaco.languages.CompletionItemKind;
+  kind: CompletionType;
   insertText: string;
 }

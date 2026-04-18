@@ -1,3 +1,5 @@
+import { SymbolEntry } from '../script-engine/model/symbol-entry.interface';
+import { TypeInfo } from '../script-engine/model/type-info.interface';
 import {
   CLIENT_CONNECT_COMMAND, Commands,
   EXECUTE_SCRIPT_COMMAND,
@@ -11,7 +13,6 @@ import {
   SCRIPT_EXECUTED_EVENT,
   SERVER_CONNECTED_EVENT
 } from './events';
-import { TypeMetadata } from './type-metadata.interface';
 
 export type CommandOrEvent =
   ServerConnectCommand
@@ -77,7 +78,8 @@ export interface AvailableServicesChangedEvent extends BaseCommandOrEvent {
 export interface InstallTypeMetadataCommand extends BaseCommandOrEvent {
   type: typeof INSTALL_TYPE_METADATA_COMMAND,
   serviceName: string;
-  typeMetadata: Record<string, TypeMetadata>;
+  typeMetadata: TypeInfo[];
+  symbols: SymbolEntry[];
 }
 
 export interface MessageReceivedEvent extends BaseCommandOrEvent {

@@ -12,14 +12,14 @@ export class SymbolResolver {
     const localSymbol = localVars.find(({ name }) => name === symbol);
     if (localSymbol) return this.resolveTypeInfo(localSymbol.type, service);
 
-    const bindings = this.scriptEngineStore.bindingsByServiceName()[service];
-    if (bindings[symbol]) return this.resolveTypeInfo(bindings[symbol].type, service);
+    const bindings = this.scriptEngineStore.bindings()[service];
+    if (bindings[symbol]) return this.resolveTypeInfo(bindings[symbol], service);
 
     return null;
   }
 
   public resolveTypeInfo(type: string, service: string): TypeInfo {
-    const types = this.scriptEngineStore.typesByServiceName()[service];
+    const types = this.scriptEngineStore.typeMetadata()[service];
     return types[type];
   }
 }
