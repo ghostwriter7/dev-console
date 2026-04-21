@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, input, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClrComboboxModule } from '@clr/angular';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { UiMessageGroup } from '../../model/ui-message-group.interface';
 import { CompletionType } from '../../script-engine/completion-type.enum';
 import { ScriptEngineFacade } from '../../script-engine/facade/script-engine.facade';

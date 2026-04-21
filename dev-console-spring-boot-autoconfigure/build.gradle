@@ -4,11 +4,6 @@ plugins {
     id 'maven-publish'
 }
 
-//def uiDir = file("$rootDir/dev-console-ui")
-//def uiDistDir = file("$uiDir/dist/dev-console/browser")
-//def generatedUiStaticDir = file("$buildDir/generated-resources/main/static/dev-console")
-//def npmCommand = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
-
 dependencies {
     api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
 
@@ -34,35 +29,6 @@ bootJar {
 jar {
     enabled = true
 }
-
-//tasks.register('npmInstall', Exec) {
-//    workingDir uiDir
-//    commandLine npmCommand, 'install'
-//}
-//
-//tasks.register('npmBuild', Exec) {
-//    dependsOn 'npmInstall'
-//    workingDir uiDir
-//    commandLine npmCommand, 'run', 'build'
-//}
-//
-//tasks.register('copyUiToResources', Copy) {
-//    dependsOn 'npmBuild'
-//    from uiDistDir
-//    into generatedUiStaticDir
-//}
-//
-//sourceSets {
-//    main {
-//        resources {
-//            srcDir "$buildDir/generated-resources/main"
-//        }
-//    }
-//}
-//
-//processResources {
-//    dependsOn 'copyUiToResources'
-//}
 
 publishing {
     publications {
