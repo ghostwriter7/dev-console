@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.SessionAttribute;
+import com.rozplochowski.devconsole.SessionIdReader;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,7 @@ public class MessageSender {
     private final ObjectMapper mapper;
 
     public boolean send(WebSocketSession session, CommandOrEvent message) {
-        var serviceName = session.getAttributes().get(SessionAttribute.SERVICE_NAME.name());
-        var sessionId = serviceName == null ? session.getId() : serviceName;
+        var sessionId = SessionIdReader.read(session);
         try {
             var textMessage = new TextMessage(serialize(message));
             session.sendMessage(textMessage);

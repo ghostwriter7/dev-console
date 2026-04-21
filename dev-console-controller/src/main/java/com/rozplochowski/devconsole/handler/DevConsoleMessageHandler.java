@@ -3,6 +3,7 @@ package com.rozplochowski.devconsole.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.SessionAttribute;
+import com.rozplochowski.devconsole.SessionIdReader;
 import com.rozplochowski.devconsole.common.MessageMediator;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -31,10 +32,8 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
         var payload = message.getPayload();
 
         CommandOrEvent msg = mapper.readValue(payload.toString(), CommandOrEvent.class);
-        var serviceName = (String) session.getAttributes().get(SessionAttribute.SERVICE_NAME.name());
-        var sessionId = serviceName == null ? session.getId() : serviceName;
 
-        log.info("Received message from: '{}' of type: {}", sessionId, msg.getClass().getSimpleName());
+        log.info("Received message from: '{}' of type: {}", SessionIdReader.read(session), msg.getClass().getSimpleName());
 
         messageMediator.dispatch(session, msg);
     }
