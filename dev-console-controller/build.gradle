@@ -7,6 +7,7 @@ def uiDir = file("$rootDir/dev-console-ui")
 def uiDistDir = file("$uiDir/dist/dev-console/browser")
 def generatedUiStaticDir = file("$buildDir/generated-resources/main/static/dev-console")
 def npmCommand = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+def nodeModules = file("$uiDir/node_modules")
 
 dependencies {
     implementation project(':dev-console-common')
@@ -15,18 +16,35 @@ dependencies {
 tasks.register('npmInstall', Exec) {
     workingDir uiDir
     commandLine npmCommand, 'install'
+
+    inputs.file("$uiDir/package.json")
+    inputs.file("$uiDir/package-lock.json")
+    outputs.dir(nodeModules)
 }
 
 tasks.register('npmBuild', Exec) {
     dependsOn 'npmInstall'
     workingDir uiDir
     commandLine npmCommand, 'run', 'build'
+
+    inputs.dir("$uiDir/src")
+    inputs.dir("$uiDir/public")
+    inputs.file("$uiDir/angular.json")
+    inputs.files(
+            "$uiDir/package-lock.json",
+            "$uiDir/package.json",
+            "$uiDir/angular.json"
+    )
+    outputs.dir(uiDistDir)
 }
 
 tasks.register('copyUiToResources', Copy) {
     dependsOn 'npmBuild'
     from uiDistDir
     into generatedUiStaticDir
+
+    inputs.dir(uiDistDir)
+    outputs.dir(generatedUiStaticDir)
 }
 
 sourceSets {
