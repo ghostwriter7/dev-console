@@ -3,7 +3,7 @@ package com.rozplochowski.devconsole.handler;
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.UiClientToken;
 import com.rozplochowski.devconsole.common.MessageSender;
-import lombok.AccessLevel;
+import com.rozplochowski.devconsole.handler.repository.SessionRepository;import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;

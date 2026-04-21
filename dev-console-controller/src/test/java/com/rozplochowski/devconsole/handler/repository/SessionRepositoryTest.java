@@ -1,4 +1,4 @@
-package com.rozplochowski.devconsole.handler;
+package com.rozplochowski.devconsole.handler.repository;
 
 import com.rozplochowski.devconsole.UiClientToken;
 import org.junit.jupiter.api.BeforeEach;

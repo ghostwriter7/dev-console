@@ -1,8 +1,9 @@
-package com.rozplochowski.devconsole.handler;
+package com.rozplochowski.devconsole.handler.repository;
 
+import com.rozplochowski.devconsole.handler.ServerContext;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
+import java.util.HashSet;import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,6 @@ public class ServerContextRepository {
     }
 
     public Set<Map.Entry<String, ServerContext>> entries() {
-        return serverContextMap.entrySet();
+        return new HashSet<>(serverContextMap.entrySet());
     }
 }

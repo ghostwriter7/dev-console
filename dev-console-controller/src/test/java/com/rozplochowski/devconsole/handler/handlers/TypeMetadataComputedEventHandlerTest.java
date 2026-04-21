@@ -2,8 +2,7 @@ package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.common.MessageSender;
-import com.rozplochowski.devconsole.handler.SessionRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.rozplochowski.devconsole.handler.repository.SessionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +13,6 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

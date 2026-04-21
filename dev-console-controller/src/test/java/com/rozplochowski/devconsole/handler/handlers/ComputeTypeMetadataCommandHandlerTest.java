@@ -2,7 +2,7 @@ package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.common.MessageSender;
-import com.rozplochowski.devconsole.handler.SessionRepository;
+import com.rozplochowski.devconsole.handler.repository.SessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

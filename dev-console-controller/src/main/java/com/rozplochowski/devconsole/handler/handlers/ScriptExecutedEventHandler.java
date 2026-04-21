@@ -5,7 +5,7 @@ import com.rozplochowski.devconsole.Handles;
 import com.rozplochowski.devconsole.MessageHandler;
 import com.rozplochowski.devconsole.SessionIdReader;
 import com.rozplochowski.devconsole.common.MessageSender;
-import com.rozplochowski.devconsole.handler.SessionRepository;
+import com.rozplochowski.devconsole.handler.repository.SessionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
