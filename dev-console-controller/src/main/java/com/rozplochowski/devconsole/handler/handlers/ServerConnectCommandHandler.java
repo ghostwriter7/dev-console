@@ -24,11 +24,9 @@ class ServerConnectCommandHandler implements com.rozplochowski.devconsole.Messag
     @Override
     public void handle(CommandOrEvent.ServerConnectCommand message, WebSocketSession session) {
         var serviceName = message.serviceName();
-        var typeMetadata = message.typeMetadata();
-        var symbols = message.symbols();
 
         handleServiceRegistration(serviceName, session);
-        handleTypeMetadataAndSymbols(serviceName, typeMetadata, symbols);
+        handleTypeMetadataAndSymbols(serviceName, message.typeMetadata(), message.symbols());
     }
 
     private void handleServiceRegistration(String serviceName, WebSocketSession session) {
@@ -38,13 +36,12 @@ class ServerConnectCommandHandler implements com.rozplochowski.devconsole.Messag
 
         var payload = new CommandOrEvent.ServerConnectedEvent(serviceName);
         sender.send(session, payload);
-
-        availableServicesChangedNotifier.notifyClient();
     }
 
     private void handleTypeMetadataAndSymbols(String serviceName, List<TypeMetadata> typeMetadata, List<Symbol> symbols) {
         serverContextRepository.put(serviceName, new ServerContext(typeMetadata, symbols));
         sessionRepository.tryGetClient().ifPresent(client -> {
+            availableServicesChangedNotifier.notifyClient(client);
             var payload = new CommandOrEvent.InstallTypeMetadataCommand(serviceName, typeMetadata, symbols);
             sender.send(client, payload);
         });
