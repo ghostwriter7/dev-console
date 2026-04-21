@@ -25,7 +25,7 @@ class ClientConnectCommandHandler implements MessageHandler<CommandOrEvent.Clien
     public void handle(CommandOrEvent.ClientConnectCommand message, WebSocketSession session) {
         log.info("Received ClientConnectCommand from {}. UI connected.", session.getId());
         sessionRepository.put(UiClientToken.VALUE, session);
-        availableServicesChangedNotifier.notifyClient();
+        availableServicesChangedNotifier.notifyClient(session);
         session.getAttributes().put(SessionAttribute.SERVICE_NAME.name(), UiClientToken.VALUE);
         var serverContexts = serverContextRepository.entries();
 

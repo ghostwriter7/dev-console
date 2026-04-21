@@ -58,7 +58,7 @@ class ClientConnectCommandHandlerTest {
         uut.handle(cmd, session);
 
         verify(sessionRepository).put(UiClientToken.VALUE, session);
-        verify(availableServicesChangedNotifier).notifyClient();
+        verify(availableServicesChangedNotifier).notifyClient(session);
         assertEquals(UiClientToken.VALUE, session.getAttributes().get(SessionAttribute.SERVICE_NAME.name()));
         verifyNoInteractions(sender);
     }
@@ -76,7 +76,7 @@ class ClientConnectCommandHandlerTest {
         uut.handle(cmd, session);
 
         verify(sessionRepository).put(UiClientToken.VALUE, session);
-        verify(availableServicesChangedNotifier).notifyClient();
+        verify(availableServicesChangedNotifier).notifyClient(session);
         assertEquals(UiClientToken.VALUE, session.getAttributes().get(SessionAttribute.SERVICE_NAME.name()));
         verify(sender).send(session, new CommandOrEvent.InstallTypeMetadataCommand("ServerA", serverAContext.typeMetadata(), serverAContext.symbols()));
         verify(sender).send(session, new CommandOrEvent.InstallTypeMetadataCommand("ServerB", serverBContext.typeMetadata(), serverBContext.symbols()));
