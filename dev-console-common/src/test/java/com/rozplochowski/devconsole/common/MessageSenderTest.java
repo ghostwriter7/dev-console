@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.SessionAttribute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,7 @@ class MessageSenderTest {
     @BeforeEach
     void setUp() {
         session = mock(WebSocketSession.class);
-        when(session.getAttributes()).thenReturn(Map.of("serviceName", "AnyName"));
+        when(session.getAttributes()).thenReturn(Map.of(SessionAttribute.SERVICE_NAME.name(), "AnyName"));
     }
 
     @Test

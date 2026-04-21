@@ -1,5 +1,6 @@
 package com.rozplochowski.devconsole.handler;
 
+import com.rozplochowski.devconsole.UiClientToken;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -28,7 +29,7 @@ public class SessionRepository {
     }
 
     public Optional<WebSocketSession> getClient() {
-        return Optional.ofNullable(sessions.get("CLIENT"));
+        return Optional.ofNullable(sessions.get(UiClientToken.VALUE));
     }
 
     public Set<String> services() {

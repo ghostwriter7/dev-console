@@ -1,10 +1,7 @@
 package com.rozplochowski.devconsole.handler.handlers;
 
 
-import com.rozplochowski.devconsole.CommandOrEvent;
-import com.rozplochowski.devconsole.Handles;
-import com.rozplochowski.devconsole.Symbol;
-import com.rozplochowski.devconsole.TypeMetadata;
+import com.rozplochowski.devconsole.*;
 import com.rozplochowski.devconsole.handler.*;
 import com.rozplochowski.devconsole.common.MessageSender;import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +34,7 @@ class ServerConnectCommandHandler implements com.rozplochowski.devconsole.Messag
     private void handleServiceRegistration(String serviceName, WebSocketSession session) {
         log.info("Received ServerConnectCommand from {}", serviceName);
         sessionRepository.put(serviceName, session);
-        session.getAttributes().put("serviceName", serviceName);
+        session.getAttributes().put(SessionAttribute.SERVICE_NAME.name(), serviceName);
 
         var payload = new CommandOrEvent.ServerConnectedEvent(serviceName);
         sender.send(session, payload);

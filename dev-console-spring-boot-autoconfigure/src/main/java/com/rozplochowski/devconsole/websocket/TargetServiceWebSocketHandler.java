@@ -18,7 +18,7 @@ import org.springframework.web.socket.*;
 import java.io.IOException;
 import java.util.*;
 
-import static com.rozplochowski.devconsole.websocket.SessionAttribute.*;
+import static com.rozplochowski.devconsole.SessionAttribute.*;
 
 @Slf4j
 @RequiredArgsConstructor

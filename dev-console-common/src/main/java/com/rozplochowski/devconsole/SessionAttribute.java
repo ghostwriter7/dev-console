@@ -1,4 +1,4 @@
-package com.rozplochowski.devconsole.websocket;
+package com.rozplochowski.devconsole;
 
 public enum SessionAttribute {
     BINDING,

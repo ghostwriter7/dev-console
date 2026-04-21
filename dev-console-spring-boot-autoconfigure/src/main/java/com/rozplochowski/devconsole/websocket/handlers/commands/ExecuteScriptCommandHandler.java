@@ -15,7 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import static com.rozplochowski.devconsole.websocket.SessionAttribute.*;
+import static com.rozplochowski.devconsole.SessionAttribute.*;
 
 @Slf4j
 @Component

@@ -2,6 +2,8 @@ package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.Handles;
+import com.rozplochowski.devconsole.SessionAttribute;
+import com.rozplochowski.devconsole.UiClientToken;
 import com.rozplochowski.devconsole.handler.AvailableServicesChangedNotifier;
 import com.rozplochowski.devconsole.common.MessageSender;
 import com.rozplochowski.devconsole.handler.ServerContextRepository;
@@ -25,9 +27,9 @@ class ClientConnectCommandHandler implements com.rozplochowski.devconsole.Messag
     @Override
     public void handle(CommandOrEvent.ClientConnectCommand message, WebSocketSession session) {
         log.info("Received ClientConnectCommand from {}. UI connected.", session.getId());
-        sessionRepository.put("CLIENT", session);
+        sessionRepository.put(UiClientToken.VALUE, session);
         availableServicesChangedNotifier.notifyClient();
-        session.getAttributes().put("serviceName", "CLIENT");
+        session.getAttributes().put(SessionAttribute.SERVICE_NAME.name(), UiClientToken.VALUE);
         var serverContexts = serverContextRepository.entries();
 
         if (!serverContexts.isEmpty()) {

@@ -1,6 +1,7 @@
 package com.rozplochowski.devconsole.handler;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.UiClientToken;
 import com.rozplochowski.devconsole.common.MessageSender;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class AvailableServicesChangedNotifier {
     public void notifyClient() {
         sessionRepository.getClient().ifPresent(client -> {
             var availableServices = new HashSet<>(sessionRepository.services());
-            availableServices.remove("CLIENT");
+            availableServices.remove(UiClientToken.VALUE);
             var payload = new CommandOrEvent.AvailableServicesChangedEvent(availableServices);
             messageSender.send(client, payload);
         });

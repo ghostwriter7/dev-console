@@ -2,6 +2,7 @@ package com.rozplochowski.devconsole.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rozplochowski.devconsole.CommandOrEvent;
+import com.rozplochowski.devconsole.SessionAttribute;
 import com.rozplochowski.devconsole.common.MessageMediator;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -30,7 +31,7 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
         var payload = message.getPayload();
 
         CommandOrEvent msg = mapper.readValue(payload.toString(), CommandOrEvent.class);
-        var serviceName = (String) session.getAttributes().get("serviceName");
+        var serviceName = (String) session.getAttributes().get(SessionAttribute.SERVICE_NAME.name());
         var sessionId = serviceName == null ? session.getId() : serviceName;
 
         log.info("Received message from: '{}' of type: {}", sessionId, msg.getClass().getSimpleName());
@@ -47,7 +48,7 @@ public class DevConsoleMessageHandler implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus closeStatus) throws Exception {
         log.info("DevConsole WebSocket connection closed with ID: {}", session.getId());
-        var serviceName = (String) session.getAttributes().get("serviceName");
+        var serviceName = (String) session.getAttributes().get(SessionAttribute.SERVICE_NAME.name());
 
         if (serviceName != null) {
             sessionRepository.remove(serviceName);
