@@ -36,7 +36,7 @@ public class MessageSender {
     private String serialize(CommandOrEvent message) {
         try {
             return mapper.writeValueAsString(message);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new IllegalArgumentException("Could not serialize JSON: " + e.getMessage());
         }
     }

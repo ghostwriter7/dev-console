@@ -72,14 +72,16 @@ class MessageMediatorTest {
         var message = new CommandOrEvent.ClientConnectCommand();
         var session = mock(WebSocketSession.class);
 
-        assertThrows(IllegalArgumentException.class, () -> messageMediator.dispatch(session, message), () -> "No handler for message type: " + message.getClass());
+        var ex = assertThrows(IllegalArgumentException.class, () -> messageMediator.dispatch(session, message));
+        assertEquals("No handler for message type: " + message.getClass(), ex.getMessage());
     }
 
     @Test
     void shouldFailInitializationIfAHandlerDoesNotHaveAValidAnnotation() {
         List<MessageHandler<?>> handlers = List.of(handlerA, handlerB, handlerC);
 
-        assertThrows(IllegalArgumentException.class, () -> new MessageMediator(handlers), () -> "Handler " + handlerC.getClass() + " is missing @Handles annotation");
+        var ex = assertThrows(IllegalArgumentException.class, () -> new MessageMediator(handlers));
+        assertEquals("Handler " + handlerC.getClass() + " is missing @Handles annotation", ex.getMessage());
     }
 
 }
