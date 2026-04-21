@@ -2,6 +2,7 @@ package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.Handles;
+import com.rozplochowski.devconsole.MessageHandler;
 import com.rozplochowski.devconsole.SessionIdReader;
 import com.rozplochowski.devconsole.common.MessageSender;
 import com.rozplochowski.devconsole.handler.SessionRepository;
@@ -15,7 +16,7 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 @Handles(CommandOrEvent.ScriptExecutedEvent.class)
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class ScriptExecutedEventHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.ScriptExecutedEvent> {
+class ScriptExecutedEventHandler implements MessageHandler<CommandOrEvent.ScriptExecutedEvent> {
     private final MessageSender sender;
     private final SessionRepository sessionRepository;
 

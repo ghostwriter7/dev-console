@@ -2,6 +2,7 @@ package com.rozplochowski.devconsole.handler.handlers;
 
 import com.rozplochowski.devconsole.CommandOrEvent;
 import com.rozplochowski.devconsole.Handles;
+import com.rozplochowski.devconsole.MessageHandler;
 import com.rozplochowski.devconsole.common.MessageSender;
 import com.rozplochowski.devconsole.handler.SessionRepository;
 import lombok.AccessLevel;
@@ -14,7 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 @Handles(CommandOrEvent.TypeMetadataComputedEvent.class)
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class TypeMetadataComputedEventHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.TypeMetadataComputedEvent> {
+class TypeMetadataComputedEventHandler implements MessageHandler<CommandOrEvent.TypeMetadataComputedEvent> {
     private final MessageSender sender;
     private final SessionRepository sessionRepository;
 

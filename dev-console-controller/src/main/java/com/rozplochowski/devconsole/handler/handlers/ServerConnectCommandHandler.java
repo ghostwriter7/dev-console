@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Handles(CommandOrEvent.ServerConnectCommand.class)
-class ServerConnectCommandHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.ServerConnectCommand> {
+class ServerConnectCommandHandler implements MessageHandler<CommandOrEvent.ServerConnectCommand> {
     private final SessionRepository sessionRepository;
     private final ServerContextRepository serverContextRepository;
     private final MessageSender sender;
