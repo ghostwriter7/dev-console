@@ -7,8 +7,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class AvailableServicesChangedNotifier {
@@ -16,8 +14,8 @@ public class AvailableServicesChangedNotifier {
     private final MessageSender messageSender;
 
     public void notifyClient() {
-        sessionRepository.getClient().ifPresent(client -> {
-            var availableServices = new HashSet<>(sessionRepository.services());
+        sessionRepository.tryGetClient().ifPresent(client -> {
+            var availableServices = sessionRepository.services();
             availableServices.remove(UiClientToken.VALUE);
             var payload = new CommandOrEvent.AvailableServicesChangedEvent(availableServices);
             messageSender.send(client, payload);

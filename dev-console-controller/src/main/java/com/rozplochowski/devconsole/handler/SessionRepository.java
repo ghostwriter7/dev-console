@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -24,15 +25,15 @@ public class SessionRepository {
         sessions.remove(serverName);
     }
 
-    public Optional<WebSocketSession> get(String serverName) {
+    public Optional<WebSocketSession> tryGet(String serverName) {
         return Optional.ofNullable(sessions.get(serverName));
     }
 
-    public Optional<WebSocketSession> getClient() {
+    public Optional<WebSocketSession> tryGetClient() {
         return Optional.ofNullable(sessions.get(UiClientToken.VALUE));
     }
 
     public Set<String> services() {
-        return sessions.keySet();
+        return new HashSet<>(sessions.keySet());
     }
 }

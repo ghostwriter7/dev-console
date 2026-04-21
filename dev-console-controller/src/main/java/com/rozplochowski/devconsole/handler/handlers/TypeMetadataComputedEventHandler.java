@@ -20,7 +20,7 @@ class TypeMetadataComputedEventHandler implements com.rozplochowski.devconsole.M
 
     @Override
     public void handle(CommandOrEvent.TypeMetadataComputedEvent message, WebSocketSession session) {
-        sessionRepository.getClient()
+        sessionRepository.tryGetClient()
                 .ifPresentOrElse(client -> sender.send(client, message),
                         () -> log.error("No client session found. Failed to send TypeMetadataComputedEvent."));
     }

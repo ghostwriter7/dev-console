@@ -20,7 +20,7 @@ class ComputeTypeMetadataCommandHandler implements com.rozplochowski.devconsole.
 
     @Override
     public void handle(CommandOrEvent.ComputeTypeMetadataCommand command, WebSocketSession session) {
-        sessionRepository.get(command.targetServiceName())
+        sessionRepository.tryGet(command.targetServiceName())
                 .ifPresentOrElse(targetSession -> sender.send(targetSession, command),
                         () -> log.error("No session found for target service: {}", command.targetServiceName()));
     }

@@ -44,7 +44,7 @@ class ServerConnectCommandHandler implements com.rozplochowski.devconsole.Messag
 
     private void handleTypeMetadataAndSymbols(String serviceName, List<TypeMetadata> typeMetadata, List<Symbol> symbols) {
         serverContextRepository.put(serviceName, new ServerContext(typeMetadata, symbols));
-        sessionRepository.getClient().ifPresent(client -> {
+        sessionRepository.tryGetClient().ifPresent(client -> {
             var payload = new CommandOrEvent.InstallTypeMetadataCommand(serviceName, typeMetadata, symbols);
             sender.send(client, payload);
         });

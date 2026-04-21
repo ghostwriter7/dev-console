@@ -21,7 +21,7 @@ class ScriptExecutedEventHandler implements com.rozplochowski.devconsole.Message
     @Override
     public void handle(CommandOrEvent.ScriptExecutedEvent message, WebSocketSession session) {
         log.info("Received ScriptExecutedEvent from Session: {} for UUID: {}. Replaying back to UI.", session.getId(), message.uuid());
-        sessionRepository.getClient().ifPresentOrElse(client -> sender.send(client, message),
+        sessionRepository.tryGetClient().ifPresentOrElse(client -> sender.send(client, message),
                 () -> log.error("No client session found. Failed to send ScriptExecutedEvent."));
     }
 }

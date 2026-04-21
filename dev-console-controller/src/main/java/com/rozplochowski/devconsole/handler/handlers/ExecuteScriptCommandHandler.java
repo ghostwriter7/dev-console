@@ -20,7 +20,7 @@ class ExecuteScriptCommandHandler implements com.rozplochowski.devconsole.Messag
 
     @Override
     public void handle(CommandOrEvent.ExecuteScriptCommand command, WebSocketSession session) {
-        sessionRepository.get(command.targetServiceName())
+        sessionRepository.tryGet(command.targetServiceName())
                 .ifPresentOrElse(targetSession -> sender.send(targetSession, command),
                         () -> log.error("No session found for target service: {}", command.targetServiceName()));
     }
