@@ -14,7 +14,6 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +30,7 @@ class ExecuteScriptCommandHandlerTest {
 
     private WebSocketSession session;
 
-    private CommandOrEvent.ExecuteScriptCommand cmd = new CommandOrEvent.ExecuteScriptCommand(
+    private final CommandOrEvent.ExecuteScriptCommand cmd = new CommandOrEvent.ExecuteScriptCommand(
             UUID.randomUUID(),
             "ServiceX",
             "println 'Hello world!'"

@@ -20,6 +20,7 @@ class ExecuteScriptCommandHandler implements com.rozplochowski.devconsole.Messag
 
     @Override
     public void handle(CommandOrEvent.ExecuteScriptCommand command, WebSocketSession session) {
+        // TODO Consider what should happen if a target service is unavailable. Should I notify UI immediately?
         sessionRepository.tryGet(command.targetServiceName())
                 .ifPresentOrElse(targetSession -> sender.send(targetSession, command),
                         () -> log.error("No session found for target service: {}", command.targetServiceName()));

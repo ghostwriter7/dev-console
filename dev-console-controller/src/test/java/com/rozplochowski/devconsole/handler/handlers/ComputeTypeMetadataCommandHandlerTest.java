@@ -14,7 +14,6 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +30,7 @@ class ComputeTypeMetadataCommandHandlerTest {
 
     private WebSocketSession session;
 
-    private CommandOrEvent.ComputeTypeMetadataCommand cmd = new CommandOrEvent
+    private final CommandOrEvent.ComputeTypeMetadataCommand cmd = new CommandOrEvent
             .ComputeTypeMetadataCommand("ServiceX", "java.lang.String", UUID.randomUUID());
 
     @BeforeEach
