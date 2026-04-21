@@ -1,9 +1,6 @@
 package com.rozplochowski.devconsole.handler.handlers;
 
-import com.rozplochowski.devconsole.CommandOrEvent;
-import com.rozplochowski.devconsole.Handles;
-import com.rozplochowski.devconsole.SessionAttribute;
-import com.rozplochowski.devconsole.UiClientToken;
+import com.rozplochowski.devconsole.*;
 import com.rozplochowski.devconsole.handler.AvailableServicesChangedNotifier;
 import com.rozplochowski.devconsole.common.MessageSender;
 import com.rozplochowski.devconsole.handler.ServerContextRepository;
@@ -18,7 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Handles(CommandOrEvent.ClientConnectCommand.class)
-class ClientConnectCommandHandler implements com.rozplochowski.devconsole.MessageHandler<CommandOrEvent.ClientConnectCommand> {
+class ClientConnectCommandHandler implements MessageHandler<CommandOrEvent.ClientConnectCommand> {
     private final ServerContextRepository serverContextRepository;
     private final SessionRepository sessionRepository;
     private final MessageSender sender;
