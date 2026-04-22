@@ -32,7 +32,7 @@ class MessageSenderTest {
     private MessageSender messageSender;
 
     private WebSocketSession session;
-    private CommandOrEvent command = new CommandOrEvent.ServerConnectCommand("AnyName", List.of(), List.of());
+    private final CommandOrEvent command = new CommandOrEvent.ServerConnectCommand("AnyName", List.of(), List.of());
 
 
     @BeforeEach
