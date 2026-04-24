@@ -2,12 +2,15 @@ package com.rozplochowski.devconsole.websocket;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
-class GroovyShellFactory {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+final class GroovyShellFactory {
 
-    GroovyShell fromBinding(Binding binding) {
+    static GroovyShell fromBinding(Binding binding) {
         var importCustomizer = new ImportCustomizer();
         importCustomizer.addImports("groovy.json.JsonOutput");
         importCustomizer.addStarImports("java.util", "java.time");
@@ -15,6 +18,6 @@ class GroovyShellFactory {
         var compilerConfig = new CompilerConfiguration();
         compilerConfig.addCompilationCustomizers(importCustomizer);
 
-        return new GroovyShell(getClass().getClassLoader(), binding, compilerConfig);
+        return new GroovyShell(GroovyShellFactory.class.getClassLoader(), binding, compilerConfig);
     }
 }

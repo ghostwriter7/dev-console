@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
